@@ -1,0 +1,135 @@
+version: '3'
+
+# ============== Variables ==============
+vars:
+  # Short git commit hash
+  COMMIT_HASH:
+    sh: git rev-parse --short HEAD
+  # Latest tag version
+  VERSION:
+    sh: git describe --tags --abbrev=0
+  # Go build flags with embedded version info
+  GO_FLAGS: "-s -w -X main.CommitHash={{.COMMIT_HASH}} -X main.Version={{.VERSION}}"
+
+  DEV_RUN_FLAGS: ""
+
+# ============== Tasks ==============
+tasks:
+
+  copyright:
+    desc: "Auto set copyright in Go files"
+    silent: true
+    cmds:
+      - ./add_copyright.sh
+
+  gen-proto:
+    desc: "Generate gRPC proto implementation for server"
+    silent: true
+    cmds:
+      - echo "=== Start proto files generate ==="
+      - |
+        protoc \
+        --proto_path=./internal/infra/grpc/flugel/proto \
+        --go_out=./internal/infra/grpc/flugel/common --go_opt=paths=source_relative \
+        --go-grpc_out=./internal/infra/grpc/flugel/common --go-grpc_opt=paths=source_relative \
+        ./internal/infra/grpc/flugel/proto/*.proto
+      - echo "=== Generate finished ==="
+
+  # Clean Go environment
+  clean:
+    desc: "Clean Go modules and build artifacts"
+    silent: true
+    cmds:
+      - echo "=== Cleaning Go Environment ==="
+      - go mod tidy
+      - go clean
+      - echo "=== Clean Completed ==="
+
+  fully-clean:
+    desc: "Full cleanup of Go environment and build artifacts"
+    silent: true
+    cmds:
+      - echo "=== Full Go Cleanup ==="
+      - go clean -cache
+      - go clean -testcache
+      - go clean -modcache
+      - go mod tidy
+      - rm -rf ./bin ./dist ./out 2>/dev/null || true
+      - rm -f *.exe *.out *.test 2>/dev/null || true
+      - echo "=== Cleanup Completed ==="
+
+  # Project tests
+  project-tests:
+    desc: "Run all project tests"
+    silent: true
+    cmds:
+      - echo "=== Running Project Tests ==="
+      - go clean -testcache
+      # Run tests in all packages, ignore packages without tests
+      - go test ./... 2>&1 | grep -v "no test files" || true
+      - echo "=== Tests Completed ==="
+
+
+  # Project benchmarks
+  project-benchmarks:
+    desc: "Run all benchmarks with memory stats"
+    silent: true
+    cmds:
+      - echo "=== Running Benchmarks ==="
+      - go test -run=^$ -bench=. -benchmem ./... 2>&1 | grep -v "no test files" || true
+      - echo "=== Benchmarks Completed ==="
+
+
+  # Full test workflow: tests + benchmarks
+  tests:
+    desc: "Run all tests and benchmarks"
+    silent: true
+    cmds:
+      - echo "=============== Running Full Test Workflow ==============="
+      - task: project-tests
+      - echo "=========================================================="
+      - task: project-benchmarks
+      - echo "============== Full Test Workflow Completed =============="
+
+
+  # Build development binary
+  build-dev:
+    desc: "Build development binary for local testing"
+    silent: true
+    cmds:
+      - echo "=== Building Development Binary ==="
+      - |
+        GOOS=linux \
+        GOARCH=amd64 \
+        go build -trimpath \
+        -o "./xraymon-dev" \
+        -v "./cmd/xraymon/main.go"
+      - echo "=== Development Build Completed ==="
+
+
+  # Run development binary
+  run:
+    desc: "Run development binary"
+    silent: true
+    deps: [build-dev]
+    cmds:
+      - echo "=== Running Development Binary ==="
+      - ./xraymon-dev {{ .DEV_RUN_FLAGS }}
+      - echo "=== Development Binary Finished ==="
+
+
+  # Production build
+  build:
+    desc: "Build production-ready binary with embedded version info"
+    silent: true
+    cmds:
+      - task: fully-clean
+      - task: tests
+      - echo "=== Building Production Binary ==="
+      - |
+        GOOS=linux \
+        GOARCH=amd64 \
+        go build -trimpath -ldflags="{{.GO_FLAGS}}" \
+        -o "./xraymon" \
+        -v "./cmd/xraymon/main.go"
+      - echo "=== Production Build Completed ==="

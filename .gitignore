@@ -1,0 +1,10 @@
+# Binaries
+/bin/
+/obj/
+
+# Vendor
+/vendor/
+
+# IDE files
+*.idea/
+*.vscode/

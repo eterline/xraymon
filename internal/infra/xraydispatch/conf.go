@@ -43,7 +43,7 @@ type apiObject struct {
 func initApiObject() *apiObject {
 	return &apiObject{
 		Tag:    "api",
-		Listen: "./xray-api.sock,0666",
+		Listen: "127.0.0.1:3000",
 		Services: []string{
 			"HandlerService",
 			"LoggerService",

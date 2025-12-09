@@ -8,11 +8,17 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"runtime"
+
+	"github.com/eterline/tunbee/internal/domain"
 )
 
 func xrayCore() string {
-	return fmt.Sprintf("Xray-%s-%s", runtime.GOOS, runtime.GOARCH)
+	return filepath.Join(
+		"cores",
+		fmt.Sprintf("Xray-%s-%s", runtime.GOOS, runtime.GOARCH),
+	)
 }
 
 type XrayDispatcher struct {
@@ -21,76 +27,87 @@ type XrayDispatcher struct {
 	errorStream  io.Writer
 }
 
-func NewXrayDispatcher() *XrayDispatcher {
+func NewXrayDispatcher(accept, err io.Writer) *XrayDispatcher {
 	return &XrayDispatcher{
-		bin: xrayCore(),
+		bin:          xrayCore(),
+		acceptStream: accept,
+		errorStream:  err,
 	}
 }
 
-func (xd *XrayDispatcher) Run(ctx context.Context, conf json.RawMessage) error {
-	var cfg map[string]any
-	if err := json.Unmarshal(conf, &cfg); err != nil {
-		panic(err)
-	}
+func (xd *XrayDispatcher) Run(ctx context.Context, conf domain.CoreConfiguration, level string) error {
 
-	cfg["stats"] = initLogging("info")
-	cfg["stats"] = initStats()
-	cfg["api"] = initApiObject()
+	conf["log"] = structToRawJSON(initLogging(level))
+	conf["stats"] = structToRawJSON(initStats())
+	conf["api"] = structToRawJSON(initApiObject())
 
-	xrayCmd := exec.CommandContext(ctx, xd.bin)
+	cmd := exec.CommandContext(ctx, xd.bin)
 
-	stdin, err := xrayCmd.StdinPipe()
+	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	defer stdin.Close()
 
-	stdout, err := xrayCmd.StdoutPipe()
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		panic(err)
-	}
-	defer stdout.Close()
-
-	err = json.NewEncoder(stdin).Encode(cfg)
-	if err != nil {
-		panic(err)
+		stdin.Close()
+		return err
 	}
 
-	if err := xrayCmd.Start(); err != nil {
-		panic(err)
+	if err := cmd.Start(); err != nil {
+		stdin.Close()
+		return err
 	}
 
-	xrayOut := bufio.NewScanner(stdout)
+	if err := json.NewEncoder(stdin).Encode(conf); err != nil {
+		stdin.Close()
+		return err
+	}
+	stdin.Close()
 
-	scans := make(chan struct{})
-
-	go func() {
-		defer close(scans)
-
-		for xrayOut.Scan() {
-			scans <- struct{}{}
-		}
-	}()
+	lines := make(chan []byte)
+	go streamLines(stdout, lines)
 
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
-		case <-scans:
-			err := xd.streamLog(xrayOut.Bytes())
-			if err != nil {
+			return cmd.Process.Kill()
+		case line, ok := <-lines:
+			if !ok {
+				return cmd.Wait()
+			}
+			if err := xd.streamLog(line); err != nil {
 				return err
 			}
 		}
 	}
 }
 
+// ----------------- Helpers -----------------
+
+func streamLines(r io.Reader, out chan<- []byte) {
+	sc := bufio.NewScanner(r)
+	defer close(out)
+
+	for sc.Scan() {
+		b := append([]byte(nil), sc.Bytes()...) // copy
+		out <- b
+	}
+}
+
 func (xd *XrayDispatcher) streamLog(p []byte) error {
-	if bytes.Contains(p, []byte("accept")) {
+	if bytes.Contains(p, []byte("accepted")) {
 		_, err := xd.acceptStream.Write(p)
 		return err
 	}
-
 	_, err := xd.errorStream.Write(p)
 	return err
+}
+
+func structToRawJSON(v any) json.RawMessage {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return json.RawMessage(b)
 }

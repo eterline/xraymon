@@ -1,0 +1,41 @@
+{
+    "inbounds": [
+        {
+            "tag": "HTTP:8080",
+            "listen": "0.0.0.0",
+            "port": 8080,
+            "protocol": "http",
+            "settings": {
+                "accounts": [],
+                "allowTransparent": true
+            },
+            "allocate": {
+                "concurrency": 3,
+                "refresh": 5,
+                "strategy": "always"
+            },
+            "sniffing": {
+                "enabled": true,
+                "routeOnly": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ]
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "tag": "DIRECT"
+        },
+        {
+            "protocol": "blackhole",
+            "response": {
+                "type": "http"
+            },
+            "tag": "BLOCK"
+        }
+    ]
+}

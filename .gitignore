@@ -2,6 +2,11 @@
 /bin/
 /obj/
 
+/xraymon-dev
+/xraymon
+
+*.log
+
 # Vendor
 /vendor/
 

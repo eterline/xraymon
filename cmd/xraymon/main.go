@@ -1,53 +1,37 @@
+// Copyright (c) 2025 EterLine (Andrew)
+// This file is part of fstmon.
+// Licensed under the MIT License. See the LICENSE file for details.
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"log/slog"
-	"os"
-	"time"
+	"github.com/eterline/xraymon/internal/app/xraymon"
+	"github.com/eterline/xraymon/internal/infra/log"
+	"github.com/eterline/xraymon/pkg/toolkit"
+)
 
-	"github.com/eterline/tunbee/internal/domain"
-	"github.com/eterline/tunbee/internal/infra/log"
-	"github.com/eterline/tunbee/internal/infra/xraydispatch"
+// -ladflags variables
+var (
+	CommitHash = "dev"
+	Version    = "dev"
+)
+
+var (
+	Flags = xraymon.InitFlags{
+		CommitHash: CommitHash,
+		Version:    Version,
+		Repository: "github.com/eterline/xraymon",
+	}
 )
 
 func main() {
+	root := toolkit.InitAppStart(
+		func() error {
+			return nil
+		},
+	)
 
-	cfgData, err := os.ReadFile("./settings.json")
-	if err != nil {
-		panic(err)
-	}
+	logger := log.NewLogger("info", false)
+	root.Context = log.WrapLoggerToContext(root.Context, logger)
 
-	var cfg json.RawMessage
-
-	err = json.Unmarshal(cfgData, &cfg)
-	if err != nil {
-		panic(err)
-	}
-
-	access, err := log.NewAccessLogger("xray_access.log")
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		access.Rotate()
-
-		t := time.NewTimer(30 * time.Second)
-		defer t.Stop()
-
-		for range t.C {
-			slog.Info("rotate acess log")
-			access.Rotate()
-		}
-	}()
-
-	core, err := log.NewCoreLogger("xray_core.log")
-	if err != nil {
-		panic(err)
-	}
-
-	xray := xraydispatch.NewXrayDispatcher(access, core)
-	xray.Run(context.Background(), domain.CoreConfiguration{}, "info")
+	xraymon.Execute(root, Flags)
 }

@@ -1,3 +1,6 @@
+// Copyright (c) 2025 EterLine (Andrew)
+// This file is part of fstmon.
+// Licensed under the MIT License. See the LICENSE file for details.
 package xrayapi
 
 import (
@@ -92,12 +95,12 @@ func (x *XrayAPI) grpcNotNil() error {
 	return nil
 }
 
-func (x *XrayAPI) GetTraffic(reset bool) ([]Traffic, []ClientTraffic, error) {
+func (x *XrayAPI) GetTraffic(ctx context.Context, reset bool) ([]Traffic, []ClientTraffic, error) {
 	if err := x.grpcNotNil(); err != nil {
 		return nil, nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
 	if x.StatsServiceClient == nil {
@@ -108,6 +111,8 @@ func (x *XrayAPI) GetTraffic(reset bool) ([]Traffic, []ClientTraffic, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	fmt.Println(resp.Stat)
 
 	t, ct := parseStats(resp.Stat)
 

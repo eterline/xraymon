@@ -64,3 +64,24 @@ func SliceRepeats[T comparable](s []T) map[T]int {
 
 	return ct
 }
+
+type whitelist[T comparable] struct {
+	alw map[T]struct{}
+}
+
+func NewWhitelist[T comparable](allowed ...T) *whitelist[T] {
+	l := &whitelist[T]{
+		alw: make(map[T]struct{}, len(allowed)),
+	}
+
+	for _, v := range allowed {
+		l.alw[v] = struct{}{}
+	}
+
+	return l
+}
+
+func (w *whitelist[T]) Allowed(v T) bool {
+	_, ok := w.alw[v]
+	return ok
+}

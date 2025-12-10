@@ -6,7 +6,7 @@ package usecase_test
 import (
 	"testing"
 
-	"github.com/eterline/tunbee/internal/utils/usecase"
+	"github.com/eterline/xraymon/internal/utils/usecase"
 )
 
 func Test_AvgVector(t *testing.T) {

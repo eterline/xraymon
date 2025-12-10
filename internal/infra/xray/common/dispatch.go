@@ -1,4 +1,7 @@
-package xraydispatch
+// Copyright (c) 2025 EterLine (Andrew)
+// This file is part of fstmon.
+// Licensed under the MIT License. See the LICENSE file for details.
+package xraycommon
 
 import (
 	"bufio"
@@ -11,7 +14,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/eterline/tunbee/internal/domain"
+	"github.com/eterline/xraymon/internal/domain"
 )
 
 func xrayCore() string {

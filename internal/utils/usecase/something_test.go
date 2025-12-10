@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/eterline/tunbee/internal/utils/usecase"
+	"github.com/eterline/xraymon/internal/utils/usecase"
 )
 
 func Test_RemoveSliceRepeats(t *testing.T) {

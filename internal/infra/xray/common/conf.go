@@ -5,9 +5,11 @@ package xraycommon
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/eterline/xraymon/internal/domain"
@@ -104,14 +106,28 @@ type configFileProvider struct {
 }
 
 func NewConfigFileProvider(path string) (*configFileProvider, error) {
+	if filepath.Base(path) == "config.json" {
+		return nil, errors.New("core settings can't have name 'config.json'")
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed open config: %w", err)
 	}
 
 	cfp := &configFileProvider{
 		path:     path,
 		confFile: f,
+	}
+
+	cfg, err := cfp.LoadConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed test config: %w", err)
+	}
+
+	err = cfp.SaveConfig(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed test config: %w", err)
 	}
 
 	return cfp, nil
@@ -151,7 +167,7 @@ func (cfp *configFileProvider) SaveConfig(cfg domain.CoreConfiguration) error {
 	}
 
 	enc := json.NewEncoder(tmp)
-	enc.SetIndent("", "  ")
+	enc.SetIndent("", "    ")
 
 	clearConfig(&cfg)
 

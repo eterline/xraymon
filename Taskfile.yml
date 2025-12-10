@@ -29,10 +29,10 @@ tasks:
       - echo "=== Start proto files generate ==="
       - |
         protoc \
-        --proto_path=./internal/infra/grpc/flugel/proto \
-        --go_out=./internal/infra/grpc/flugel/common --go_opt=paths=source_relative \
-        --go-grpc_out=./internal/infra/grpc/flugel/common --go-grpc_opt=paths=source_relative \
-        ./internal/infra/grpc/flugel/proto/*.proto
+        --proto_path=./internal/interface/grpc/commands \
+        --go_out=./internal/interface/grpc/commands --go_opt=paths=source_relative \
+        --go-grpc_out=./internal/interface/grpc/commands --go-grpc_opt=paths=source_relative \
+        ./internal/interface/grpc/commands/*.proto
       - echo "=== Generate finished ==="
 
   # Clean Go environment

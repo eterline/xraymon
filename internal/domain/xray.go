@@ -5,14 +5,21 @@ package domain
 
 import (
 	"encoding/json"
+	"time"
 )
 
 type CoreConfiguration map[string]json.RawMessage
 
 type ConfigLoader interface {
-	LoadConfig() (*CoreConfiguration, error)
+	LoadConfig() (CoreConfiguration, error)
 }
 
 type ConfigSaver interface {
-	SaveConfig(*CoreConfiguration) error
+	SaveConfig(CoreConfiguration) error
+}
+
+type CoreStatus struct {
+	Working     bool
+	LastLog     string
+	WorkingTime time.Duration
 }

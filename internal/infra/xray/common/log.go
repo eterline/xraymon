@@ -34,15 +34,18 @@ type basicLogger struct {
 	fileMu sync.Mutex
 	path   string
 	file   *os.File
+}
 
-	lastLineMu sync.RWMutex
-	lastLine   *bytes.Buffer
+func (bl *basicLogger) Close() error {
+	if bl.file != nil {
+		return bl.file.Close()
+	}
+	return nil
 }
 
 func newBasicLogger(path string) (*basicLogger, error) {
 	bl := &basicLogger{
-		path:     path,
-		lastLine: &bytes.Buffer{},
+		path: path,
 	}
 
 	if err := bl.newLog(false); err != nil {
@@ -135,6 +138,12 @@ func (cl *coreLogger) Write(p []byte) (int, error) {
 	)
 
 	return len(p), nil
+}
+
+func (cl *coreLogger) LastLog() string {
+	cl.lastLineMu.RLock()
+	defer cl.lastLineMu.RUnlock()
+	return cl.lastLine.String()
 }
 
 // ========================

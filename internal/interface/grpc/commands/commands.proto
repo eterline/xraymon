@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package xraymon.commands;
+
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/eterline/xraymon/internal/interface/grpc/commands";
+
+// ============
+
+service CoreManagmentService {
+    rpc ConnectionJournal(ConnectionJournalRequest) returns (stream ConnectionMeta);
+    rpc CoreStatus(CoreStatusRequest) returns (CoreStatusResponse);
+
+    rpc GetConfig(GetConfigRequest) returns (GetConfigResponse);
+    rpc UploadConfig(UploadConfigRequest) returns (UploadConfigResponse);
+}
+
+// ============
+
+message ConnectionIO {
+    uint64 BytesRX          = 1;
+    uint64 BytesTX          = 2;
+    uint64 BytesPerSecRx    = 3;
+    uint64 BytesPerSecTx    = 4;
+}
+
+enum ConnectionType {
+    Inbound  = 0;
+    Outbound = 1;
+    User     = 2;
+}
+
+message ConnectionMeta {
+    ConnectionType  Type    = 1;
+    string          Alias   = 2;
+    ConnectionIO    IO      = 3;
+}
+
+message ConnectionJournalRequest {
+    uint64 last = 1;
+}
+
+// =======
+
+message CoreStatusRequest {}
+
+message CoreStatusResponse {
+    bool                        Working     = 1;
+    string                      LastLog     = 2;
+    google.protobuf.Duration    WorkingTime = 3;
+}
+
+// =======
+
+message GetConfigRequest {}
+
+message GetConfigResponse {
+    bytes Data = 1;
+}
+
+message UploadConfigRequest {
+    bytes   Data        = 1;
+    bool    RestartCore = 2;
+}
+
+message UploadConfigResponse {}

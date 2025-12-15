@@ -23,3 +23,8 @@ type CoreStatus struct {
 	LastLog     string
 	WorkingTime time.Duration
 }
+
+type CoreState interface {
+	Restart() error
+	Status() CoreStatus
+}

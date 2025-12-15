@@ -36,6 +36,7 @@ func Execute(root *toolkit.AppStarter, flags InitFlags) {
 	// ========================================================
 
 	f := "./settings.json"
+	log.Info("init base xray settings file", "file", f)
 	cfgExporter, err := xraycommon.NewConfigFileProvider(f)
 	if err != nil {
 		log.Error("failed init config provider", "file", f, "error", err)
@@ -65,6 +66,7 @@ func Execute(root *toolkit.AppStarter, flags InitFlags) {
 	coreMg := manager.NewCoreManager(ctx, dsp, cfgExporter, coreLog, "warning")
 
 	root.WrapWorker(func() {
+		log.Info("starting core")
 		err := coreMg.Start()
 		if err != nil {
 			slog.Error("start core failed", "error", err)

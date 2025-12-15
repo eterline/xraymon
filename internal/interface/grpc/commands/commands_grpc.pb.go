@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CoreManagmentService_ConnectionJournal_FullMethodName = "/xraymon.commands.CoreManagmentService/ConnectionJournal"
 	CoreManagmentService_CoreStatus_FullMethodName        = "/xraymon.commands.CoreManagmentService/CoreStatus"
+	CoreManagmentService_CoreRestart_FullMethodName       = "/xraymon.commands.CoreManagmentService/CoreRestart"
 	CoreManagmentService_GetConfig_FullMethodName         = "/xraymon.commands.CoreManagmentService/GetConfig"
 	CoreManagmentService_UploadConfig_FullMethodName      = "/xraymon.commands.CoreManagmentService/UploadConfig"
 )
@@ -31,6 +32,7 @@ const (
 type CoreManagmentServiceClient interface {
 	ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error)
 	CoreStatus(ctx context.Context, in *CoreStatusRequest, opts ...grpc.CallOption) (*CoreStatusResponse, error)
+	CoreRestart(ctx context.Context, in *CoreRestartRequest, opts ...grpc.CallOption) (*CoreRestartResponse, error)
 	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error)
 	UploadConfig(ctx context.Context, in *UploadConfigRequest, opts ...grpc.CallOption) (*UploadConfigResponse, error)
 }
@@ -72,6 +74,16 @@ func (c *coreManagmentServiceClient) CoreStatus(ctx context.Context, in *CoreSta
 	return out, nil
 }
 
+func (c *coreManagmentServiceClient) CoreRestart(ctx context.Context, in *CoreRestartRequest, opts ...grpc.CallOption) (*CoreRestartResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CoreRestartResponse)
+	err := c.cc.Invoke(ctx, CoreManagmentService_CoreRestart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coreManagmentServiceClient) GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetConfigResponse)
@@ -98,6 +110,7 @@ func (c *coreManagmentServiceClient) UploadConfig(ctx context.Context, in *Uploa
 type CoreManagmentServiceServer interface {
 	ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error
 	CoreStatus(context.Context, *CoreStatusRequest) (*CoreStatusResponse, error)
+	CoreRestart(context.Context, *CoreRestartRequest) (*CoreRestartResponse, error)
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
 	UploadConfig(context.Context, *UploadConfigRequest) (*UploadConfigResponse, error)
 	mustEmbedUnimplementedCoreManagmentServiceServer()
@@ -115,6 +128,9 @@ func (UnimplementedCoreManagmentServiceServer) ConnectionJournal(*ConnectionJour
 }
 func (UnimplementedCoreManagmentServiceServer) CoreStatus(context.Context, *CoreStatusRequest) (*CoreStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CoreStatus not implemented")
+}
+func (UnimplementedCoreManagmentServiceServer) CoreRestart(context.Context, *CoreRestartRequest) (*CoreRestartResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CoreRestart not implemented")
 }
 func (UnimplementedCoreManagmentServiceServer) GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetConfig not implemented")
@@ -172,6 +188,24 @@ func _CoreManagmentService_CoreStatus_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CoreManagmentService_CoreRestart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoreRestartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreManagmentServiceServer).CoreRestart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreManagmentService_CoreRestart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreManagmentServiceServer).CoreRestart(ctx, req.(*CoreRestartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CoreManagmentService_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetConfigRequest)
 	if err := dec(in); err != nil {
@@ -218,6 +252,10 @@ var CoreManagmentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CoreStatus",
 			Handler:    _CoreManagmentService_CoreStatus_Handler,
+		},
+		{
+			MethodName: "CoreRestart",
+			Handler:    _CoreManagmentService_CoreRestart_Handler,
 		},
 		{
 			MethodName: "GetConfig",

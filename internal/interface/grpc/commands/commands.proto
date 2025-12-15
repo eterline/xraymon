@@ -10,7 +10,9 @@ option go_package = "github.com/eterline/xraymon/internal/interface/grpc/command
 
 service CoreManagmentService {
     rpc ConnectionJournal(ConnectionJournalRequest) returns (stream ConnectionMeta);
+
     rpc CoreStatus(CoreStatusRequest) returns (CoreStatusResponse);
+    rpc CoreRestart(CoreRestartRequest) returns (CoreRestartResponse);
 
     rpc GetConfig(GetConfigRequest) returns (GetConfigResponse);
     rpc UploadConfig(UploadConfigRequest) returns (UploadConfigResponse);
@@ -18,27 +20,42 @@ service CoreManagmentService {
 
 // ============
 
-message ConnectionIO {
-    uint64 BytesRX          = 1;
-    uint64 BytesTX          = 2;
-    uint64 BytesPerSecRx    = 3;
-    uint64 BytesPerSecTx    = 4;
-}
+// message ConnectionIO {
+//     uint64 BytesRX          = 1;
+//     uint64 BytesTX          = 2;
+//     uint64 BytesPerSecRx    = 3;
+//     uint64 BytesPerSecTx    = 4;
+// }
 
-enum ConnectionType {
-    Inbound  = 0;
-    Outbound = 1;
-    User     = 2;
-}
+// enum ConnectionType {
+//     Inbound  = 0;
+//     Outbound = 1;
+//     User     = 2;
+// }
 
-message ConnectionMeta {
-    ConnectionType  Type    = 1;
-    string          Alias   = 2;
-    ConnectionIO    IO      = 3;
-}
+// message StatsMeta {
+//     ConnectionType  Type    = 1;
+//     string          Alias   = 2;
+//     ConnectionIO    IO      = 3;
+// }
 
 message ConnectionJournalRequest {
     uint64 last = 1;
+}
+
+enum NetType {
+    HTTP    = 0;
+    TCP     = 1;
+    UDP     = 2;
+}
+
+message ConnectionMeta {
+    string  Client   = 1;
+    string  Server   = 2;
+    NetType Proto    = 3;
+    string  Inbound  = 4;
+    string  Outbound = 5;
+    string  User     = 6;
 }
 
 // =======
@@ -50,6 +67,12 @@ message CoreStatusResponse {
     string                      LastLog     = 2;
     google.protobuf.Duration    WorkingTime = 3;
 }
+
+// =======
+
+message CoreRestartRequest {}
+
+message CoreRestartResponse {}
 
 // =======
 

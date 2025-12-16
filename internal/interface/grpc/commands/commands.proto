@@ -18,9 +18,14 @@ service CoreManagmentService {
 service JournalProvider {
     rpc ConnectionJournal(ConnectionJournalRequest) returns (stream ConnectionMeta);
     rpc NetworkStats(NetworkStatsRequest) returns (NetworkStatsResponse);
+    rpc RotateJournal(RotateJournalRequest) returns (RotateJournalResponse);
 }
 
 // ============
+
+message RotateJournalRequest {}
+
+message RotateJournalResponse {}
 
 message ConnectionIO {
     uint64 bytes_rx         = 1;

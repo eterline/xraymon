@@ -7,6 +7,7 @@ import (
 	context "context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -19,12 +20,6 @@ import (
 type Limiter interface {
 	// InLimits returns true if the operation is allowed according to the limits.
 	InLimits() bool
-}
-
-// LastConnProvider - provider of the last connections.
-type LastConnProvider interface {
-	// LastConnections returns the last N connection metadata records.
-	LastConnections(context.Context, int) ([]domain.ConnectionMetadata, error)
 }
 
 // coreManageHandlers - gRPC handler for core management operations.
@@ -46,7 +41,6 @@ func NewCoreManageHandlers(
 	s domain.ConfigSaver,
 	l domain.ConfigLoader,
 	r domain.CoreState,
-	lc LastConnProvider,
 	log *slog.Logger,
 ) *coreManageHandlers {
 	return &coreManageHandlers{
@@ -155,27 +149,50 @@ type StatsActual interface {
 	StatsNow(ctx context.Context) ([]domain.StatsSnapshot, error)
 }
 
+type ConnectionJournal interface {
+	LastConnections(context.Context, int) ([]domain.ConnectionMetadata, error)
+	Rotate() error
+}
+
+type CoreJournal interface {
+	LastLog() string
+	Rotate() error
+}
+
 type journalHandlers struct {
-	lastConns LastConnProvider
-	statsNet  StatsActual
+	coreJr   CoreJournal
+	connJr   ConnectionJournal
+	statsNet StatsActual
+
+	rotateLim  Limiter
+	journalLim Limiter
 
 	log *slog.Logger
 
 	UnimplementedJournalProviderServer
 }
 
-func NewJournalHandlers(lc LastConnProvider, sa StatsActual, log *slog.Logger) *journalHandlers {
+func NewJournalHandlers(conn ConnectionJournal, core CoreJournal, sa StatsActual, log *slog.Logger) *journalHandlers {
 	return &journalHandlers{
-		lastConns: lc,
-		statsNet:  sa,
-		log:       log,
+		connJr:   conn,
+		coreJr:   core,
+		statsNet: sa,
+
+		rotateLim:  usecase.NewIntervalLimiter(5 * time.Second),
+		journalLim: usecase.NewIntervalLimiter(5 * time.Second),
+
+		log: log,
 	}
 }
 
 // ConnectionJournal - streams the last connection records to the client.
 func (jh *journalHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream grpc.ServerStreamingServer[ConnectionMeta]) error {
 
-	metaList, err := jh.lastConns.LastConnections(stream.Context(), int(r.Last))
+	if !jh.journalLim.InLimits() {
+		return errors.New("too many requests")
+	}
+
+	metaList, err := jh.connJr.LastConnections(stream.Context(), int(r.Last))
 	if err != nil {
 		jh.log.Error("failed to load connection journal", "error", err)
 		return err
@@ -199,11 +216,42 @@ func (jh *journalHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream
 	return nil
 }
 
-func (jh *journalHandlers) NetworkStatsNetworkStats(ctx context.Context, r *NetworkStatsRequest) (*NetworkStatsResponse, error) {
+func (jh *journalHandlers) NetworkStats(ctx context.Context, r *NetworkStatsRequest) (*NetworkStatsResponse, error) {
 	stats, err := jh.statsNet.StatsNow(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	return domain2dtoNetworkStatsResponse(stats), nil
+}
+
+func (jh *journalHandlers) RotateJournal(ctx context.Context, r *RotateJournalRequest) (*RotateJournalResponse, error) {
+
+	if !jh.rotateLim.InLimits() {
+		return nil, errors.New("too many requests")
+	}
+
+	var errs []error
+
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	if err := jh.connJr.Rotate(); err != nil {
+		errs = append(errs, err)
+	}
+
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	if err := jh.coreJr.Rotate(); err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("journal rotate error: %v", errs)
+	}
+
+	return &RotateJournalResponse{}, nil
 }

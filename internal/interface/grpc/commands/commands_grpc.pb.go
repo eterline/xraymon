@@ -237,6 +237,7 @@ var CoreManagmentService_ServiceDesc = grpc.ServiceDesc{
 const (
 	JournalProvider_ConnectionJournal_FullMethodName = "/xraymon.commands.JournalProvider/ConnectionJournal"
 	JournalProvider_NetworkStats_FullMethodName      = "/xraymon.commands.JournalProvider/NetworkStats"
+	JournalProvider_RotateJournal_FullMethodName     = "/xraymon.commands.JournalProvider/RotateJournal"
 )
 
 // JournalProviderClient is the client API for JournalProvider service.
@@ -245,6 +246,7 @@ const (
 type JournalProviderClient interface {
 	ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error)
 	NetworkStats(ctx context.Context, in *NetworkStatsRequest, opts ...grpc.CallOption) (*NetworkStatsResponse, error)
+	RotateJournal(ctx context.Context, in *RotateJournalRequest, opts ...grpc.CallOption) (*RotateJournalResponse, error)
 }
 
 type journalProviderClient struct {
@@ -284,12 +286,23 @@ func (c *journalProviderClient) NetworkStats(ctx context.Context, in *NetworkSta
 	return out, nil
 }
 
+func (c *journalProviderClient) RotateJournal(ctx context.Context, in *RotateJournalRequest, opts ...grpc.CallOption) (*RotateJournalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RotateJournalResponse)
+	err := c.cc.Invoke(ctx, JournalProvider_RotateJournal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JournalProviderServer is the server API for JournalProvider service.
 // All implementations must embed UnimplementedJournalProviderServer
 // for forward compatibility.
 type JournalProviderServer interface {
 	ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error
 	NetworkStats(context.Context, *NetworkStatsRequest) (*NetworkStatsResponse, error)
+	RotateJournal(context.Context, *RotateJournalRequest) (*RotateJournalResponse, error)
 	mustEmbedUnimplementedJournalProviderServer()
 }
 
@@ -305,6 +318,9 @@ func (UnimplementedJournalProviderServer) ConnectionJournal(*ConnectionJournalRe
 }
 func (UnimplementedJournalProviderServer) NetworkStats(context.Context, *NetworkStatsRequest) (*NetworkStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NetworkStats not implemented")
+}
+func (UnimplementedJournalProviderServer) RotateJournal(context.Context, *RotateJournalRequest) (*RotateJournalResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RotateJournal not implemented")
 }
 func (UnimplementedJournalProviderServer) mustEmbedUnimplementedJournalProviderServer() {}
 func (UnimplementedJournalProviderServer) testEmbeddedByValue()                         {}
@@ -356,6 +372,24 @@ func _JournalProvider_NetworkStats_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _JournalProvider_RotateJournal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RotateJournalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JournalProviderServer).RotateJournal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JournalProvider_RotateJournal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JournalProviderServer).RotateJournal(ctx, req.(*RotateJournalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JournalProvider_ServiceDesc is the grpc.ServiceDesc for JournalProvider service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -366,6 +400,10 @@ var JournalProvider_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NetworkStats",
 			Handler:    _JournalProvider_NetworkStats_Handler,
+		},
+		{
+			MethodName: "RotateJournal",
+			Handler:    _JournalProvider_RotateJournal_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

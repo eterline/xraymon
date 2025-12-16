@@ -111,8 +111,6 @@ func (x *XrayAPI) GetTraffic(ctx context.Context, reset bool) ([]Traffic, []Clie
 		return nil, nil, err
 	}
 
-	fmt.Println(resp.Stat)
-
 	t, ct := parseStats(resp.Stat)
 
 	return t, ct, nil

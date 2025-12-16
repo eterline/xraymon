@@ -19,18 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoreManagmentService_ConnectionJournal_FullMethodName = "/xraymon.commands.CoreManagmentService/ConnectionJournal"
-	CoreManagmentService_CoreStatus_FullMethodName        = "/xraymon.commands.CoreManagmentService/CoreStatus"
-	CoreManagmentService_CoreRestart_FullMethodName       = "/xraymon.commands.CoreManagmentService/CoreRestart"
-	CoreManagmentService_GetConfig_FullMethodName         = "/xraymon.commands.CoreManagmentService/GetConfig"
-	CoreManagmentService_UploadConfig_FullMethodName      = "/xraymon.commands.CoreManagmentService/UploadConfig"
+	CoreManagmentService_CoreStatus_FullMethodName   = "/xraymon.commands.CoreManagmentService/CoreStatus"
+	CoreManagmentService_CoreRestart_FullMethodName  = "/xraymon.commands.CoreManagmentService/CoreRestart"
+	CoreManagmentService_GetConfig_FullMethodName    = "/xraymon.commands.CoreManagmentService/GetConfig"
+	CoreManagmentService_UploadConfig_FullMethodName = "/xraymon.commands.CoreManagmentService/UploadConfig"
 )
 
 // CoreManagmentServiceClient is the client API for CoreManagmentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoreManagmentServiceClient interface {
-	ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error)
 	CoreStatus(ctx context.Context, in *CoreStatusRequest, opts ...grpc.CallOption) (*CoreStatusResponse, error)
 	CoreRestart(ctx context.Context, in *CoreRestartRequest, opts ...grpc.CallOption) (*CoreRestartResponse, error)
 	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error)
@@ -44,25 +42,6 @@ type coreManagmentServiceClient struct {
 func NewCoreManagmentServiceClient(cc grpc.ClientConnInterface) CoreManagmentServiceClient {
 	return &coreManagmentServiceClient{cc}
 }
-
-func (c *coreManagmentServiceClient) ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CoreManagmentService_ServiceDesc.Streams[0], CoreManagmentService_ConnectionJournal_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[ConnectionJournalRequest, ConnectionMeta]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CoreManagmentService_ConnectionJournalClient = grpc.ServerStreamingClient[ConnectionMeta]
 
 func (c *coreManagmentServiceClient) CoreStatus(ctx context.Context, in *CoreStatusRequest, opts ...grpc.CallOption) (*CoreStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -108,7 +87,6 @@ func (c *coreManagmentServiceClient) UploadConfig(ctx context.Context, in *Uploa
 // All implementations must embed UnimplementedCoreManagmentServiceServer
 // for forward compatibility.
 type CoreManagmentServiceServer interface {
-	ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error
 	CoreStatus(context.Context, *CoreStatusRequest) (*CoreStatusResponse, error)
 	CoreRestart(context.Context, *CoreRestartRequest) (*CoreRestartResponse, error)
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
@@ -123,9 +101,6 @@ type CoreManagmentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCoreManagmentServiceServer struct{}
 
-func (UnimplementedCoreManagmentServiceServer) ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error {
-	return status.Error(codes.Unimplemented, "method ConnectionJournal not implemented")
-}
 func (UnimplementedCoreManagmentServiceServer) CoreStatus(context.Context, *CoreStatusRequest) (*CoreStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CoreStatus not implemented")
 }
@@ -158,17 +133,6 @@ func RegisterCoreManagmentServiceServer(s grpc.ServiceRegistrar, srv CoreManagme
 	}
 	s.RegisterService(&CoreManagmentService_ServiceDesc, srv)
 }
-
-func _CoreManagmentService_ConnectionJournal_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ConnectionJournalRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(CoreManagmentServiceServer).ConnectionJournal(m, &grpc.GenericServerStream[ConnectionJournalRequest, ConnectionMeta]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CoreManagmentService_ConnectionJournalServer = grpc.ServerStreamingServer[ConnectionMeta]
 
 func _CoreManagmentService_CoreStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CoreStatusRequest)
@@ -266,10 +230,148 @@ var CoreManagmentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CoreManagmentService_UploadConfig_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "commands.proto",
+}
+
+const (
+	JournalProvider_ConnectionJournal_FullMethodName = "/xraymon.commands.JournalProvider/ConnectionJournal"
+	JournalProvider_NetworkStats_FullMethodName      = "/xraymon.commands.JournalProvider/NetworkStats"
+)
+
+// JournalProviderClient is the client API for JournalProvider service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type JournalProviderClient interface {
+	ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error)
+	NetworkStats(ctx context.Context, in *NetworkStatsRequest, opts ...grpc.CallOption) (*NetworkStatsResponse, error)
+}
+
+type journalProviderClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewJournalProviderClient(cc grpc.ClientConnInterface) JournalProviderClient {
+	return &journalProviderClient{cc}
+}
+
+func (c *journalProviderClient) ConnectionJournal(ctx context.Context, in *ConnectionJournalRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConnectionMeta], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &JournalProvider_ServiceDesc.Streams[0], JournalProvider_ConnectionJournal_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ConnectionJournalRequest, ConnectionMeta]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type JournalProvider_ConnectionJournalClient = grpc.ServerStreamingClient[ConnectionMeta]
+
+func (c *journalProviderClient) NetworkStats(ctx context.Context, in *NetworkStatsRequest, opts ...grpc.CallOption) (*NetworkStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(NetworkStatsResponse)
+	err := c.cc.Invoke(ctx, JournalProvider_NetworkStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// JournalProviderServer is the server API for JournalProvider service.
+// All implementations must embed UnimplementedJournalProviderServer
+// for forward compatibility.
+type JournalProviderServer interface {
+	ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error
+	NetworkStats(context.Context, *NetworkStatsRequest) (*NetworkStatsResponse, error)
+	mustEmbedUnimplementedJournalProviderServer()
+}
+
+// UnimplementedJournalProviderServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedJournalProviderServer struct{}
+
+func (UnimplementedJournalProviderServer) ConnectionJournal(*ConnectionJournalRequest, grpc.ServerStreamingServer[ConnectionMeta]) error {
+	return status.Error(codes.Unimplemented, "method ConnectionJournal not implemented")
+}
+func (UnimplementedJournalProviderServer) NetworkStats(context.Context, *NetworkStatsRequest) (*NetworkStatsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method NetworkStats not implemented")
+}
+func (UnimplementedJournalProviderServer) mustEmbedUnimplementedJournalProviderServer() {}
+func (UnimplementedJournalProviderServer) testEmbeddedByValue()                         {}
+
+// UnsafeJournalProviderServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to JournalProviderServer will
+// result in compilation errors.
+type UnsafeJournalProviderServer interface {
+	mustEmbedUnimplementedJournalProviderServer()
+}
+
+func RegisterJournalProviderServer(s grpc.ServiceRegistrar, srv JournalProviderServer) {
+	// If the following call panics, it indicates UnimplementedJournalProviderServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&JournalProvider_ServiceDesc, srv)
+}
+
+func _JournalProvider_ConnectionJournal_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ConnectionJournalRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(JournalProviderServer).ConnectionJournal(m, &grpc.GenericServerStream[ConnectionJournalRequest, ConnectionMeta]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type JournalProvider_ConnectionJournalServer = grpc.ServerStreamingServer[ConnectionMeta]
+
+func _JournalProvider_NetworkStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NetworkStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JournalProviderServer).NetworkStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JournalProvider_NetworkStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JournalProviderServer).NetworkStats(ctx, req.(*NetworkStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// JournalProvider_ServiceDesc is the grpc.ServiceDesc for JournalProvider service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var JournalProvider_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "xraymon.commands.JournalProvider",
+	HandlerType: (*JournalProviderServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "NetworkStats",
+			Handler:    _JournalProvider_NetworkStats_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "ConnectionJournal",
-			Handler:       _CoreManagmentService_ConnectionJournal_Handler,
+			Handler:       _JournalProvider_ConnectionJournal_Handler,
 			ServerStreams: true,
 		},
 	},

@@ -32,7 +32,6 @@ type coreManageHandlers struct {
 	confSave  domain.ConfigSaver
 	confLoad  domain.ConfigLoader
 	coreState domain.CoreState
-	lastConns LastConnProvider
 
 	confSaveLim    Limiter
 	coreRestartLim Limiter
@@ -54,40 +53,12 @@ func NewCoreManageHandlers(
 		confSave:  s,
 		confLoad:  l,
 		coreState: r,
-		lastConns: lc,
 
 		confSaveLim:    usecase.NewIntervalLimiter(5 * time.Second),
 		coreRestartLim: usecase.NewIntervalLimiter(5 * time.Second),
 
 		log: log,
 	}
-}
-
-// ConnectionJournal - streams the last connection records to the client.
-func (cmh *coreManageHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream grpc.ServerStreamingServer[ConnectionMeta]) error {
-
-	metaList, err := cmh.lastConns.LastConnections(stream.Context(), int(r.Last))
-	if err != nil {
-		cmh.log.Error("failed to load connection journal", "error", err)
-		return err
-	}
-
-	ctx := stream.Context()
-
-	for _, meta := range metaList {
-		if err := ctx.Err(); err != nil {
-			cmh.log.Debug("connection journal stream canceled by client")
-			return nil
-		}
-
-		dto := domain2stoConnectionMeta(meta)
-		if err := stream.Send(dto); err != nil {
-			cmh.log.Warn("failed to send connection journal item", "error", err)
-			return err
-		}
-	}
-
-	return nil
 }
 
 // CoreStatus - returns the current core status.
@@ -176,4 +147,48 @@ func (cmh *coreManageHandlers) UploadConfig(ctx context.Context, r *UploadConfig
 
 	cmh.log.Info("config successfully saved")
 	return &UploadConfigResponse{}, nil
+}
+
+// ===================================================
+
+type journalHandlers struct {
+	lastConns LastConnProvider
+
+	log *slog.Logger
+
+	UnimplementedJournalProviderServer
+}
+
+func NewJournalHandlers(lc LastConnProvider, log *slog.Logger) *journalHandlers {
+	return &journalHandlers{
+		lastConns: lc,
+		log:       log,
+	}
+}
+
+// ConnectionJournal - streams the last connection records to the client.
+func (jh *journalHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream grpc.ServerStreamingServer[ConnectionMeta]) error {
+
+	metaList, err := jh.lastConns.LastConnections(stream.Context(), int(r.Last))
+	if err != nil {
+		jh.log.Error("failed to load connection journal", "error", err)
+		return err
+	}
+
+	ctx := stream.Context()
+
+	for _, meta := range metaList {
+		if err := ctx.Err(); err != nil {
+			jh.log.Debug("connection journal stream canceled by client")
+			return nil
+		}
+
+		dto := domain2stoConnectionMeta(meta)
+		if err := stream.Send(dto); err != nil {
+			jh.log.Warn("failed to send connection journal item", "error", err)
+			return err
+		}
+	}
+
+	return nil
 }

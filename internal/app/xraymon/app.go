@@ -100,6 +100,9 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 	coreManage := commands.NewCoreManageHandlers(cfgExporter, cfgExporter, coreMg, accessLog, log)
 	commands.RegisterCoreManagmentServiceServer(grpcSrv, coreManage)
 
+	jrnl := commands.NewJournalHandlers(accessLog, log)
+	commands.RegisterJournalProviderServer(grpcSrv, jrnl)
+
 	// ==========
 
 	srv, err := server.NewGrpcServerWrapper(grpcSrv, conf.Listen)

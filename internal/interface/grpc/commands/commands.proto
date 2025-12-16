@@ -9,44 +9,52 @@ option go_package = "github.com/eterline/xraymon/internal/interface/grpc/command
 // ============
 
 service CoreManagmentService {
-    rpc ConnectionJournal(ConnectionJournalRequest) returns (stream ConnectionMeta);
-
     rpc CoreStatus(CoreStatusRequest) returns (CoreStatusResponse);
     rpc CoreRestart(CoreRestartRequest) returns (CoreRestartResponse);
-
     rpc GetConfig(GetConfigRequest) returns (GetConfigResponse);
     rpc UploadConfig(UploadConfigRequest) returns (UploadConfigResponse);
 }
 
+service JournalProvider {
+    rpc ConnectionJournal(ConnectionJournalRequest) returns (stream ConnectionMeta);
+    rpc NetworkStats(NetworkStatsRequest) returns (NetworkStatsResponse);
+}
+
 // ============
 
-// message ConnectionIO {
-//     uint64 BytesRX          = 1;
-//     uint64 BytesTX          = 2;
-//     uint64 BytesPerSecRx    = 3;
-//     uint64 BytesPerSecTx    = 4;
-// }
+message ConnectionIO {
+    uint64 bytes_rx         = 1;
+    uint64 bytes_tx         = 2;
+    uint64 bytes_per_sec_rx = 3;
+    uint64 bytes_per_sec_tx = 4;
+}
 
-// enum ConnectionType {
-//     Inbound  = 0;
-//     Outbound = 1;
-//     User     = 2;
-// }
+enum ConnectionType {
+    INBOUND  = 0;
+    OUTBOUND = 1;
+    USER     = 2;
+}
 
-// message StatsMeta {
-//     ConnectionType  Type    = 1;
-//     string          Alias   = 2;
-//     ConnectionIO    IO      = 3;
-// }
+message StatsMeta {
+    ConnectionType type  = 1;
+    string         alias = 2;
+    ConnectionIO   io    = 3;
+}
+
+message NetworkStatsResponse {
+    repeated StatsMeta stats = 1;
+}
+
+message NetworkStatsRequest {}
 
 message ConnectionJournalRequest {
     uint64 last = 1;
 }
 
 enum NetType {
-    HTTP    = 0;
-    TCP     = 1;
-    UDP     = 2;
+    HTTP = 0;
+    TCP  = 1;
+    UDP  = 2;
 }
 
 message ConnectionMeta {
@@ -64,7 +72,7 @@ message CoreStatusRequest {}
 
 message CoreStatusResponse {
     bool                        working         = 1;
-    string                      last_log         = 2;
+    string                      last_log        = 2;
     google.protobuf.Duration    working_time    = 3;
 }
 

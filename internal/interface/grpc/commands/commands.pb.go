@@ -22,6 +22,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ConnectionType int32
+
+const (
+	ConnectionType_INBOUND  ConnectionType = 0
+	ConnectionType_OUTBOUND ConnectionType = 1
+	ConnectionType_USER     ConnectionType = 2
+)
+
+// Enum value maps for ConnectionType.
+var (
+	ConnectionType_name = map[int32]string{
+		0: "INBOUND",
+		1: "OUTBOUND",
+		2: "USER",
+	}
+	ConnectionType_value = map[string]int32{
+		"INBOUND":  0,
+		"OUTBOUND": 1,
+		"USER":     2,
+	}
+)
+
+func (x ConnectionType) Enum() *ConnectionType {
+	p := new(ConnectionType)
+	*p = x
+	return p
+}
+
+func (x ConnectionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConnectionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_commands_proto_enumTypes[0].Descriptor()
+}
+
+func (ConnectionType) Type() protoreflect.EnumType {
+	return &file_commands_proto_enumTypes[0]
+}
+
+func (x ConnectionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConnectionType.Descriptor instead.
+func (ConnectionType) EnumDescriptor() ([]byte, []int) {
+	return file_commands_proto_rawDescGZIP(), []int{0}
+}
+
 type NetType int32
 
 const (
@@ -55,11 +104,11 @@ func (x NetType) String() string {
 }
 
 func (NetType) Descriptor() protoreflect.EnumDescriptor {
-	return file_commands_proto_enumTypes[0].Descriptor()
+	return file_commands_proto_enumTypes[1].Descriptor()
 }
 
 func (NetType) Type() protoreflect.EnumType {
-	return &file_commands_proto_enumTypes[0]
+	return &file_commands_proto_enumTypes[1]
 }
 
 func (x NetType) Number() protoreflect.EnumNumber {
@@ -68,7 +117,215 @@ func (x NetType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NetType.Descriptor instead.
 func (NetType) EnumDescriptor() ([]byte, []int) {
+	return file_commands_proto_rawDescGZIP(), []int{1}
+}
+
+type ConnectionIO struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BytesRx       uint64                 `protobuf:"varint,1,opt,name=bytes_rx,json=bytesRx,proto3" json:"bytes_rx,omitempty"`
+	BytesTx       uint64                 `protobuf:"varint,2,opt,name=bytes_tx,json=bytesTx,proto3" json:"bytes_tx,omitempty"`
+	BytesPerSecRx uint64                 `protobuf:"varint,3,opt,name=bytes_per_sec_rx,json=bytesPerSecRx,proto3" json:"bytes_per_sec_rx,omitempty"`
+	BytesPerSecTx uint64                 `protobuf:"varint,4,opt,name=bytes_per_sec_tx,json=bytesPerSecTx,proto3" json:"bytes_per_sec_tx,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionIO) Reset() {
+	*x = ConnectionIO{}
+	mi := &file_commands_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionIO) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionIO) ProtoMessage() {}
+
+func (x *ConnectionIO) ProtoReflect() protoreflect.Message {
+	mi := &file_commands_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionIO.ProtoReflect.Descriptor instead.
+func (*ConnectionIO) Descriptor() ([]byte, []int) {
 	return file_commands_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ConnectionIO) GetBytesRx() uint64 {
+	if x != nil {
+		return x.BytesRx
+	}
+	return 0
+}
+
+func (x *ConnectionIO) GetBytesTx() uint64 {
+	if x != nil {
+		return x.BytesTx
+	}
+	return 0
+}
+
+func (x *ConnectionIO) GetBytesPerSecRx() uint64 {
+	if x != nil {
+		return x.BytesPerSecRx
+	}
+	return 0
+}
+
+func (x *ConnectionIO) GetBytesPerSecTx() uint64 {
+	if x != nil {
+		return x.BytesPerSecTx
+	}
+	return 0
+}
+
+type StatsMeta struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          ConnectionType         `protobuf:"varint,1,opt,name=type,proto3,enum=xraymon.commands.ConnectionType" json:"type,omitempty"`
+	Alias         string                 `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
+	Io            *ConnectionIO          `protobuf:"bytes,3,opt,name=io,proto3" json:"io,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StatsMeta) Reset() {
+	*x = StatsMeta{}
+	mi := &file_commands_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatsMeta) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatsMeta) ProtoMessage() {}
+
+func (x *StatsMeta) ProtoReflect() protoreflect.Message {
+	mi := &file_commands_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatsMeta.ProtoReflect.Descriptor instead.
+func (*StatsMeta) Descriptor() ([]byte, []int) {
+	return file_commands_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *StatsMeta) GetType() ConnectionType {
+	if x != nil {
+		return x.Type
+	}
+	return ConnectionType_INBOUND
+}
+
+func (x *StatsMeta) GetAlias() string {
+	if x != nil {
+		return x.Alias
+	}
+	return ""
+}
+
+func (x *StatsMeta) GetIo() *ConnectionIO {
+	if x != nil {
+		return x.Io
+	}
+	return nil
+}
+
+type NetworkStatsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Stats         []*StatsMeta           `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NetworkStatsResponse) Reset() {
+	*x = NetworkStatsResponse{}
+	mi := &file_commands_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkStatsResponse) ProtoMessage() {}
+
+func (x *NetworkStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_commands_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkStatsResponse.ProtoReflect.Descriptor instead.
+func (*NetworkStatsResponse) Descriptor() ([]byte, []int) {
+	return file_commands_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *NetworkStatsResponse) GetStats() []*StatsMeta {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+type NetworkStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NetworkStatsRequest) Reset() {
+	*x = NetworkStatsRequest{}
+	mi := &file_commands_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkStatsRequest) ProtoMessage() {}
+
+func (x *NetworkStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_commands_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkStatsRequest.ProtoReflect.Descriptor instead.
+func (*NetworkStatsRequest) Descriptor() ([]byte, []int) {
+	return file_commands_proto_rawDescGZIP(), []int{3}
 }
 
 type ConnectionJournalRequest struct {
@@ -80,7 +337,7 @@ type ConnectionJournalRequest struct {
 
 func (x *ConnectionJournalRequest) Reset() {
 	*x = ConnectionJournalRequest{}
-	mi := &file_commands_proto_msgTypes[0]
+	mi := &file_commands_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -92,7 +349,7 @@ func (x *ConnectionJournalRequest) String() string {
 func (*ConnectionJournalRequest) ProtoMessage() {}
 
 func (x *ConnectionJournalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[0]
+	mi := &file_commands_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -105,7 +362,7 @@ func (x *ConnectionJournalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectionJournalRequest.ProtoReflect.Descriptor instead.
 func (*ConnectionJournalRequest) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{0}
+	return file_commands_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ConnectionJournalRequest) GetLast() uint64 {
@@ -129,7 +386,7 @@ type ConnectionMeta struct {
 
 func (x *ConnectionMeta) Reset() {
 	*x = ConnectionMeta{}
-	mi := &file_commands_proto_msgTypes[1]
+	mi := &file_commands_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -141,7 +398,7 @@ func (x *ConnectionMeta) String() string {
 func (*ConnectionMeta) ProtoMessage() {}
 
 func (x *ConnectionMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[1]
+	mi := &file_commands_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -154,7 +411,7 @@ func (x *ConnectionMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectionMeta.ProtoReflect.Descriptor instead.
 func (*ConnectionMeta) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{1}
+	return file_commands_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ConnectionMeta) GetClient() string {
@@ -207,7 +464,7 @@ type CoreStatusRequest struct {
 
 func (x *CoreStatusRequest) Reset() {
 	*x = CoreStatusRequest{}
-	mi := &file_commands_proto_msgTypes[2]
+	mi := &file_commands_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -219,7 +476,7 @@ func (x *CoreStatusRequest) String() string {
 func (*CoreStatusRequest) ProtoMessage() {}
 
 func (x *CoreStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[2]
+	mi := &file_commands_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -232,7 +489,7 @@ func (x *CoreStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreStatusRequest.ProtoReflect.Descriptor instead.
 func (*CoreStatusRequest) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{2}
+	return file_commands_proto_rawDescGZIP(), []int{6}
 }
 
 type CoreStatusResponse struct {
@@ -246,7 +503,7 @@ type CoreStatusResponse struct {
 
 func (x *CoreStatusResponse) Reset() {
 	*x = CoreStatusResponse{}
-	mi := &file_commands_proto_msgTypes[3]
+	mi := &file_commands_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -258,7 +515,7 @@ func (x *CoreStatusResponse) String() string {
 func (*CoreStatusResponse) ProtoMessage() {}
 
 func (x *CoreStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[3]
+	mi := &file_commands_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -271,7 +528,7 @@ func (x *CoreStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreStatusResponse.ProtoReflect.Descriptor instead.
 func (*CoreStatusResponse) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{3}
+	return file_commands_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CoreStatusResponse) GetWorking() bool {
@@ -303,7 +560,7 @@ type CoreRestartRequest struct {
 
 func (x *CoreRestartRequest) Reset() {
 	*x = CoreRestartRequest{}
-	mi := &file_commands_proto_msgTypes[4]
+	mi := &file_commands_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -315,7 +572,7 @@ func (x *CoreRestartRequest) String() string {
 func (*CoreRestartRequest) ProtoMessage() {}
 
 func (x *CoreRestartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[4]
+	mi := &file_commands_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -328,7 +585,7 @@ func (x *CoreRestartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreRestartRequest.ProtoReflect.Descriptor instead.
 func (*CoreRestartRequest) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{4}
+	return file_commands_proto_rawDescGZIP(), []int{8}
 }
 
 type CoreRestartResponse struct {
@@ -339,7 +596,7 @@ type CoreRestartResponse struct {
 
 func (x *CoreRestartResponse) Reset() {
 	*x = CoreRestartResponse{}
-	mi := &file_commands_proto_msgTypes[5]
+	mi := &file_commands_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +608,7 @@ func (x *CoreRestartResponse) String() string {
 func (*CoreRestartResponse) ProtoMessage() {}
 
 func (x *CoreRestartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[5]
+	mi := &file_commands_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +621,7 @@ func (x *CoreRestartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreRestartResponse.ProtoReflect.Descriptor instead.
 func (*CoreRestartResponse) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{5}
+	return file_commands_proto_rawDescGZIP(), []int{9}
 }
 
 type GetConfigRequest struct {
@@ -375,7 +632,7 @@ type GetConfigRequest struct {
 
 func (x *GetConfigRequest) Reset() {
 	*x = GetConfigRequest{}
-	mi := &file_commands_proto_msgTypes[6]
+	mi := &file_commands_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +644,7 @@ func (x *GetConfigRequest) String() string {
 func (*GetConfigRequest) ProtoMessage() {}
 
 func (x *GetConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[6]
+	mi := &file_commands_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +657,7 @@ func (x *GetConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetConfigRequest) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{6}
+	return file_commands_proto_rawDescGZIP(), []int{10}
 }
 
 type GetConfigResponse struct {
@@ -412,7 +669,7 @@ type GetConfigResponse struct {
 
 func (x *GetConfigResponse) Reset() {
 	*x = GetConfigResponse{}
-	mi := &file_commands_proto_msgTypes[7]
+	mi := &file_commands_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +681,7 @@ func (x *GetConfigResponse) String() string {
 func (*GetConfigResponse) ProtoMessage() {}
 
 func (x *GetConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[7]
+	mi := &file_commands_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +694,7 @@ func (x *GetConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetConfigResponse) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{7}
+	return file_commands_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetConfigResponse) GetData() string {
@@ -457,7 +714,7 @@ type UploadConfigRequest struct {
 
 func (x *UploadConfigRequest) Reset() {
 	*x = UploadConfigRequest{}
-	mi := &file_commands_proto_msgTypes[8]
+	mi := &file_commands_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -469,7 +726,7 @@ func (x *UploadConfigRequest) String() string {
 func (*UploadConfigRequest) ProtoMessage() {}
 
 func (x *UploadConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[8]
+	mi := &file_commands_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +739,7 @@ func (x *UploadConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadConfigRequest.ProtoReflect.Descriptor instead.
 func (*UploadConfigRequest) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{8}
+	return file_commands_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UploadConfigRequest) GetData() string {
@@ -507,7 +764,7 @@ type UploadConfigResponse struct {
 
 func (x *UploadConfigResponse) Reset() {
 	*x = UploadConfigResponse{}
-	mi := &file_commands_proto_msgTypes[9]
+	mi := &file_commands_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +776,7 @@ func (x *UploadConfigResponse) String() string {
 func (*UploadConfigResponse) ProtoMessage() {}
 
 func (x *UploadConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_commands_proto_msgTypes[9]
+	mi := &file_commands_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,14 +789,26 @@ func (x *UploadConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadConfigResponse.ProtoReflect.Descriptor instead.
 func (*UploadConfigResponse) Descriptor() ([]byte, []int) {
-	return file_commands_proto_rawDescGZIP(), []int{9}
+	return file_commands_proto_rawDescGZIP(), []int{13}
 }
 
 var File_commands_proto protoreflect.FileDescriptor
 
 const file_commands_proto_rawDesc = "" +
 	"\n" +
-	"\x0ecommands.proto\x12\x10xraymon.commands\x1a\x1egoogle/protobuf/duration.proto\".\n" +
+	"\x0ecommands.proto\x12\x10xraymon.commands\x1a\x1egoogle/protobuf/duration.proto\"\x96\x01\n" +
+	"\fConnectionIO\x12\x19\n" +
+	"\bbytes_rx\x18\x01 \x01(\x04R\abytesRx\x12\x19\n" +
+	"\bbytes_tx\x18\x02 \x01(\x04R\abytesTx\x12'\n" +
+	"\x10bytes_per_sec_rx\x18\x03 \x01(\x04R\rbytesPerSecRx\x12'\n" +
+	"\x10bytes_per_sec_tx\x18\x04 \x01(\x04R\rbytesPerSecTx\"\x87\x01\n" +
+	"\tStatsMeta\x124\n" +
+	"\x04type\x18\x01 \x01(\x0e2 .xraymon.commands.ConnectionTypeR\x04type\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12.\n" +
+	"\x02io\x18\x03 \x01(\v2\x1e.xraymon.commands.ConnectionIOR\x02io\"I\n" +
+	"\x14NetworkStatsResponse\x121\n" +
+	"\x05stats\x18\x01 \x03(\v2\x1b.xraymon.commands.StatsMetaR\x05stats\"\x15\n" +
+	"\x13NetworkStatsRequest\".\n" +
 	"\x18ConnectionJournalRequest\x12\x12\n" +
 	"\x04last\x18\x01 \x01(\x04R\x04last\"\xbb\x01\n" +
 	"\x0eConnectionMeta\x12\x16\n" +
@@ -562,18 +831,24 @@ const file_commands_proto_rawDesc = "" +
 	"\x13UploadConfigRequest\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\tR\x04data\x12!\n" +
 	"\frestart_core\x18\x02 \x01(\bR\vrestartCore\"\x16\n" +
-	"\x14UploadConfigResponse*%\n" +
+	"\x14UploadConfigResponse*5\n" +
+	"\x0eConnectionType\x12\v\n" +
+	"\aINBOUND\x10\x00\x12\f\n" +
+	"\bOUTBOUND\x10\x01\x12\b\n" +
+	"\x04USER\x10\x02*%\n" +
 	"\aNetType\x12\b\n" +
 	"\x04HTTP\x10\x00\x12\a\n" +
 	"\x03TCP\x10\x01\x12\a\n" +
-	"\x03UDP\x10\x022\xe5\x03\n" +
-	"\x14CoreManagmentService\x12c\n" +
-	"\x11ConnectionJournal\x12*.xraymon.commands.ConnectionJournalRequest\x1a .xraymon.commands.ConnectionMeta0\x01\x12W\n" +
+	"\x03UDP\x10\x022\x80\x03\n" +
+	"\x14CoreManagmentService\x12W\n" +
 	"\n" +
 	"CoreStatus\x12#.xraymon.commands.CoreStatusRequest\x1a$.xraymon.commands.CoreStatusResponse\x12Z\n" +
 	"\vCoreRestart\x12$.xraymon.commands.CoreRestartRequest\x1a%.xraymon.commands.CoreRestartResponse\x12T\n" +
 	"\tGetConfig\x12\".xraymon.commands.GetConfigRequest\x1a#.xraymon.commands.GetConfigResponse\x12]\n" +
-	"\fUploadConfig\x12%.xraymon.commands.UploadConfigRequest\x1a&.xraymon.commands.UploadConfigResponseB>Z<github.com/eterline/xraymon/internal/interface/grpc/commandsb\x06proto3"
+	"\fUploadConfig\x12%.xraymon.commands.UploadConfigRequest\x1a&.xraymon.commands.UploadConfigResponse2\xd5\x01\n" +
+	"\x0fJournalProvider\x12c\n" +
+	"\x11ConnectionJournal\x12*.xraymon.commands.ConnectionJournalRequest\x1a .xraymon.commands.ConnectionMeta0\x01\x12]\n" +
+	"\fNetworkStats\x12%.xraymon.commands.NetworkStatsRequest\x1a&.xraymon.commands.NetworkStatsResponseB>Z<github.com/eterline/xraymon/internal/interface/grpc/commandsb\x06proto3"
 
 var (
 	file_commands_proto_rawDescOnce sync.Once
@@ -587,40 +862,50 @@ func file_commands_proto_rawDescGZIP() []byte {
 	return file_commands_proto_rawDescData
 }
 
-var file_commands_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_commands_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_commands_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_commands_proto_goTypes = []any{
-	(NetType)(0),                     // 0: xraymon.commands.NetType
-	(*ConnectionJournalRequest)(nil), // 1: xraymon.commands.ConnectionJournalRequest
-	(*ConnectionMeta)(nil),           // 2: xraymon.commands.ConnectionMeta
-	(*CoreStatusRequest)(nil),        // 3: xraymon.commands.CoreStatusRequest
-	(*CoreStatusResponse)(nil),       // 4: xraymon.commands.CoreStatusResponse
-	(*CoreRestartRequest)(nil),       // 5: xraymon.commands.CoreRestartRequest
-	(*CoreRestartResponse)(nil),      // 6: xraymon.commands.CoreRestartResponse
-	(*GetConfigRequest)(nil),         // 7: xraymon.commands.GetConfigRequest
-	(*GetConfigResponse)(nil),        // 8: xraymon.commands.GetConfigResponse
-	(*UploadConfigRequest)(nil),      // 9: xraymon.commands.UploadConfigRequest
-	(*UploadConfigResponse)(nil),     // 10: xraymon.commands.UploadConfigResponse
-	(*durationpb.Duration)(nil),      // 11: google.protobuf.Duration
+	(ConnectionType)(0),              // 0: xraymon.commands.ConnectionType
+	(NetType)(0),                     // 1: xraymon.commands.NetType
+	(*ConnectionIO)(nil),             // 2: xraymon.commands.ConnectionIO
+	(*StatsMeta)(nil),                // 3: xraymon.commands.StatsMeta
+	(*NetworkStatsResponse)(nil),     // 4: xraymon.commands.NetworkStatsResponse
+	(*NetworkStatsRequest)(nil),      // 5: xraymon.commands.NetworkStatsRequest
+	(*ConnectionJournalRequest)(nil), // 6: xraymon.commands.ConnectionJournalRequest
+	(*ConnectionMeta)(nil),           // 7: xraymon.commands.ConnectionMeta
+	(*CoreStatusRequest)(nil),        // 8: xraymon.commands.CoreStatusRequest
+	(*CoreStatusResponse)(nil),       // 9: xraymon.commands.CoreStatusResponse
+	(*CoreRestartRequest)(nil),       // 10: xraymon.commands.CoreRestartRequest
+	(*CoreRestartResponse)(nil),      // 11: xraymon.commands.CoreRestartResponse
+	(*GetConfigRequest)(nil),         // 12: xraymon.commands.GetConfigRequest
+	(*GetConfigResponse)(nil),        // 13: xraymon.commands.GetConfigResponse
+	(*UploadConfigRequest)(nil),      // 14: xraymon.commands.UploadConfigRequest
+	(*UploadConfigResponse)(nil),     // 15: xraymon.commands.UploadConfigResponse
+	(*durationpb.Duration)(nil),      // 16: google.protobuf.Duration
 }
 var file_commands_proto_depIdxs = []int32{
-	0,  // 0: xraymon.commands.ConnectionMeta.proto:type_name -> xraymon.commands.NetType
-	11, // 1: xraymon.commands.CoreStatusResponse.working_time:type_name -> google.protobuf.Duration
-	1,  // 2: xraymon.commands.CoreManagmentService.ConnectionJournal:input_type -> xraymon.commands.ConnectionJournalRequest
-	3,  // 3: xraymon.commands.CoreManagmentService.CoreStatus:input_type -> xraymon.commands.CoreStatusRequest
-	5,  // 4: xraymon.commands.CoreManagmentService.CoreRestart:input_type -> xraymon.commands.CoreRestartRequest
-	7,  // 5: xraymon.commands.CoreManagmentService.GetConfig:input_type -> xraymon.commands.GetConfigRequest
-	9,  // 6: xraymon.commands.CoreManagmentService.UploadConfig:input_type -> xraymon.commands.UploadConfigRequest
-	2,  // 7: xraymon.commands.CoreManagmentService.ConnectionJournal:output_type -> xraymon.commands.ConnectionMeta
-	4,  // 8: xraymon.commands.CoreManagmentService.CoreStatus:output_type -> xraymon.commands.CoreStatusResponse
-	6,  // 9: xraymon.commands.CoreManagmentService.CoreRestart:output_type -> xraymon.commands.CoreRestartResponse
-	8,  // 10: xraymon.commands.CoreManagmentService.GetConfig:output_type -> xraymon.commands.GetConfigResponse
-	10, // 11: xraymon.commands.CoreManagmentService.UploadConfig:output_type -> xraymon.commands.UploadConfigResponse
-	7,  // [7:12] is the sub-list for method output_type
-	2,  // [2:7] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	0,  // 0: xraymon.commands.StatsMeta.type:type_name -> xraymon.commands.ConnectionType
+	2,  // 1: xraymon.commands.StatsMeta.io:type_name -> xraymon.commands.ConnectionIO
+	3,  // 2: xraymon.commands.NetworkStatsResponse.stats:type_name -> xraymon.commands.StatsMeta
+	1,  // 3: xraymon.commands.ConnectionMeta.proto:type_name -> xraymon.commands.NetType
+	16, // 4: xraymon.commands.CoreStatusResponse.working_time:type_name -> google.protobuf.Duration
+	8,  // 5: xraymon.commands.CoreManagmentService.CoreStatus:input_type -> xraymon.commands.CoreStatusRequest
+	10, // 6: xraymon.commands.CoreManagmentService.CoreRestart:input_type -> xraymon.commands.CoreRestartRequest
+	12, // 7: xraymon.commands.CoreManagmentService.GetConfig:input_type -> xraymon.commands.GetConfigRequest
+	14, // 8: xraymon.commands.CoreManagmentService.UploadConfig:input_type -> xraymon.commands.UploadConfigRequest
+	6,  // 9: xraymon.commands.JournalProvider.ConnectionJournal:input_type -> xraymon.commands.ConnectionJournalRequest
+	5,  // 10: xraymon.commands.JournalProvider.NetworkStats:input_type -> xraymon.commands.NetworkStatsRequest
+	9,  // 11: xraymon.commands.CoreManagmentService.CoreStatus:output_type -> xraymon.commands.CoreStatusResponse
+	11, // 12: xraymon.commands.CoreManagmentService.CoreRestart:output_type -> xraymon.commands.CoreRestartResponse
+	13, // 13: xraymon.commands.CoreManagmentService.GetConfig:output_type -> xraymon.commands.GetConfigResponse
+	15, // 14: xraymon.commands.CoreManagmentService.UploadConfig:output_type -> xraymon.commands.UploadConfigResponse
+	7,  // 15: xraymon.commands.JournalProvider.ConnectionJournal:output_type -> xraymon.commands.ConnectionMeta
+	4,  // 16: xraymon.commands.JournalProvider.NetworkStats:output_type -> xraymon.commands.NetworkStatsResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_commands_proto_init() }
@@ -633,10 +918,10 @@ func file_commands_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_commands_proto_rawDesc), len(file_commands_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   10,
+			NumEnums:      2,
+			NumMessages:   14,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_commands_proto_goTypes,
 		DependencyIndexes: file_commands_proto_depIdxs,

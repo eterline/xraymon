@@ -13,6 +13,7 @@ import (
 	"github.com/eterline/xraymon/internal/interface/grpc/commands"
 	"github.com/eterline/xraymon/internal/interface/grpc/server"
 	"github.com/eterline/xraymon/internal/usecase/manager"
+	"github.com/eterline/xraymon/internal/usecase/statspool"
 	"github.com/eterline/xraymon/pkg/toolkit"
 	"google.golang.org/grpc"
 )
@@ -76,6 +77,16 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 		}
 	})
 
+	statProv, err := xraycommon.NewStatsProvider()
+	if err != nil {
+		log.Error("failed init stats provider", "error", err)
+		root.MustStopApp(1)
+	}
+
+	statsPool := statspool.NewStatsPool(statProv, 5*time.Second, log)
+	statsPool.Start(ctx)
+	defer statsPool.Stop()
+
 	// ========================================================
 
 	var grpcSrv *grpc.Server
@@ -100,7 +111,7 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 	coreManage := commands.NewCoreManageHandlers(cfgExporter, cfgExporter, coreMg, accessLog, log)
 	commands.RegisterCoreManagmentServiceServer(grpcSrv, coreManage)
 
-	jrnl := commands.NewJournalHandlers(accessLog, log)
+	jrnl := commands.NewJournalHandlers(accessLog, statsPool, log)
 	commands.RegisterJournalProviderServer(grpcSrv, jrnl)
 
 	// ==========

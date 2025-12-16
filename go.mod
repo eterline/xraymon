@@ -13,6 +13,7 @@ require (
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
+	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/juju/ratelimit v1.0.2 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect

@@ -16,8 +16,8 @@ type DataIO struct {
 	PerSecTX uint64
 }
 
-func NewDataIO() *DataIO {
-	return &DataIO{
+func NewDataIO() DataIO {
+	return DataIO{
 		lastUpdateRx: time.Now().UnixMilli(),
 		lastUpdateTX: time.Now().UnixMilli(),
 	}
@@ -50,41 +50,41 @@ func (io *DataIO) IncTX(v uint64) {
 }
 
 func (io *DataIO) Reset() {
-	(*io) = *NewDataIO()
+	(*io) = NewDataIO()
 }
 
-type MetricType string
+type StatsType string
 
 const (
-	TypeUser     MetricType = "user"
-	TypeInbound  MetricType = "inbound"
-	TypeOubnound MetricType = "user"
+	TypeUser     StatsType = "user"
+	TypeInbound  StatsType = "inbound"
+	TypeOubnound StatsType = "user"
 )
 
-type MetricSnapshot struct {
-	Type MetricType
+type StatsSnapshot struct {
+	Type StatsType
 	Name string
-	IO   *DataIO
+	IO   DataIO
 }
 
-func NewUserMetric(email string) *MetricSnapshot {
-	return &MetricSnapshot{
+func NewUserMetric(email string) StatsSnapshot {
+	return StatsSnapshot{
 		Type: TypeUser,
 		Name: email,
 		IO:   NewDataIO(),
 	}
 }
 
-func NewInboundMetric(tag string) *MetricSnapshot {
-	return &MetricSnapshot{
+func NewInboundMetric(tag string) StatsSnapshot {
+	return StatsSnapshot{
 		Type: TypeInbound,
 		Name: tag,
 		IO:   NewDataIO(),
 	}
 }
 
-func NewOutboundMetric(tag string) *MetricSnapshot {
-	return &MetricSnapshot{
+func NewOutboundMetric(tag string) StatsSnapshot {
+	return StatsSnapshot{
 		Type: TypeOubnound,
 		Name: tag,
 		IO:   NewDataIO(),

@@ -151,17 +151,23 @@ func (cmh *coreManageHandlers) UploadConfig(ctx context.Context, r *UploadConfig
 
 // ===================================================
 
+type StatsActual interface {
+	StatsNow(ctx context.Context) ([]domain.StatsSnapshot, error)
+}
+
 type journalHandlers struct {
 	lastConns LastConnProvider
+	statsNet  StatsActual
 
 	log *slog.Logger
 
 	UnimplementedJournalProviderServer
 }
 
-func NewJournalHandlers(lc LastConnProvider, log *slog.Logger) *journalHandlers {
+func NewJournalHandlers(lc LastConnProvider, sa StatsActual, log *slog.Logger) *journalHandlers {
 	return &journalHandlers{
 		lastConns: lc,
+		statsNet:  sa,
 		log:       log,
 	}
 }
@@ -183,7 +189,7 @@ func (jh *journalHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream
 			return nil
 		}
 
-		dto := domain2stoConnectionMeta(meta)
+		dto := domain2dtoConnectionMeta(meta)
 		if err := stream.Send(dto); err != nil {
 			jh.log.Warn("failed to send connection journal item", "error", err)
 			return err
@@ -191,4 +197,13 @@ func (jh *journalHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream
 	}
 
 	return nil
+}
+
+func (jh *journalHandlers) NetworkStatsNetworkStats(ctx context.Context, r *NetworkStatsRequest) (*NetworkStatsResponse, error) {
+	stats, err := jh.statsNet.StatsNow(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return domain2dtoNetworkStatsResponse(stats), nil
 }

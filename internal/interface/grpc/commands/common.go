@@ -13,7 +13,7 @@ func domain2dtoCoreStatusResponse(s domain.CoreStatus) *CoreStatusResponse {
 	}
 }
 
-func domain2stoConnectionMeta(s domain.ConnectionMetadata) *ConnectionMeta {
+func domain2dtoConnectionMeta(s domain.ConnectionMetadata) *ConnectionMeta {
 	return &ConnectionMeta{
 		Client:   s.Client,
 		Server:   s.Server,
@@ -32,5 +32,42 @@ func selectType(v string) NetType {
 		return NetType_TCP
 	default:
 		return NetType_HTTP
+	}
+}
+
+func domain2dtoNetworkStatsResponse(s []domain.StatsSnapshot) *NetworkStatsResponse {
+	r := &NetworkStatsResponse{}
+	r.Stats = make([]*StatsMeta, 0, len(s))
+
+	for _, snap := range s {
+		meta := &StatsMeta{
+			Alias: snap.Name,
+			Type:  determConnType(snap.Type),
+			Io:    domain2connIO(snap.IO),
+		}
+
+		r.Stats = append(r.Stats, meta)
+	}
+
+	return r
+}
+
+func domain2connIO(c domain.DataIO) *ConnectionIO {
+	return &ConnectionIO{
+		BytesRx:       c.RX,
+		BytesTx:       c.TX,
+		BytesPerSecRx: c.PerSecRX,
+		BytesPerSecTx: c.PerSecTX,
+	}
+}
+
+func determConnType(t domain.StatsType) ConnectionType {
+	switch t {
+	case domain.TypeInbound:
+		return ConnectionType_INBOUND
+	case domain.TypeOubnound:
+		return ConnectionType_OUTBOUND
+	default:
+		return ConnectionType_USER
 	}
 }

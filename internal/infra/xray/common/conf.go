@@ -16,6 +16,8 @@ import (
 	"github.com/eterline/xraymon/internal/utils/usecase"
 )
 
+const apiListenAddr = "127.0.0.1:8000"
+
 var allowedFields = usecase.NewWhitelist(
 	"log",
 	"api",
@@ -86,7 +88,7 @@ type apiObject struct {
 func initApiObject() *apiObject {
 	return &apiObject{
 		Tag:    "api",
-		Listen: "127.0.0.1:8000",
+		Listen: apiListenAddr,
 		Services: []string{
 			"HandlerService",
 			"LoggerService",

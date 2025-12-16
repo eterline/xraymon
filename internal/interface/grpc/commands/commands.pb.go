@@ -117,12 +117,12 @@ func (x *ConnectionJournalRequest) GetLast() uint64 {
 
 type ConnectionMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Client        string                 `protobuf:"bytes,1,opt,name=Client,proto3" json:"Client,omitempty"`
-	Server        string                 `protobuf:"bytes,2,opt,name=Server,proto3" json:"Server,omitempty"`
-	Proto         NetType                `protobuf:"varint,3,opt,name=Proto,proto3,enum=xraymon.commands.NetType" json:"Proto,omitempty"`
-	Inbound       string                 `protobuf:"bytes,4,opt,name=Inbound,proto3" json:"Inbound,omitempty"`
-	Outbound      string                 `protobuf:"bytes,5,opt,name=Outbound,proto3" json:"Outbound,omitempty"`
-	User          string                 `protobuf:"bytes,6,opt,name=User,proto3" json:"User,omitempty"`
+	Client        string                 `protobuf:"bytes,1,opt,name=client,proto3" json:"client,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	Proto         NetType                `protobuf:"varint,3,opt,name=proto,proto3,enum=xraymon.commands.NetType" json:"proto,omitempty"`
+	Inbound       string                 `protobuf:"bytes,4,opt,name=inbound,proto3" json:"inbound,omitempty"`
+	Outbound      string                 `protobuf:"bytes,5,opt,name=outbound,proto3" json:"outbound,omitempty"`
+	User          string                 `protobuf:"bytes,6,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -237,9 +237,9 @@ func (*CoreStatusRequest) Descriptor() ([]byte, []int) {
 
 type CoreStatusResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Working       bool                   `protobuf:"varint,1,opt,name=Working,proto3" json:"Working,omitempty"`
-	LastLog       string                 `protobuf:"bytes,2,opt,name=LastLog,proto3" json:"LastLog,omitempty"`
-	WorkingTime   *durationpb.Duration   `protobuf:"bytes,3,opt,name=WorkingTime,proto3" json:"WorkingTime,omitempty"`
+	Working       bool                   `protobuf:"varint,1,opt,name=working,proto3" json:"working,omitempty"`
+	LastLog       string                 `protobuf:"bytes,2,opt,name=last_log,json=lastLog,proto3" json:"last_log,omitempty"`
+	WorkingTime   *durationpb.Duration   `protobuf:"bytes,3,opt,name=working_time,json=workingTime,proto3" json:"working_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -405,7 +405,7 @@ func (*GetConfigRequest) Descriptor() ([]byte, []int) {
 
 type GetConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          []byte                 `protobuf:"bytes,1,opt,name=Data,proto3" json:"Data,omitempty"`
+	Data          string                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -440,17 +440,17 @@ func (*GetConfigResponse) Descriptor() ([]byte, []int) {
 	return file_commands_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *GetConfigResponse) GetData() []byte {
+func (x *GetConfigResponse) GetData() string {
 	if x != nil {
 		return x.Data
 	}
-	return nil
+	return ""
 }
 
 type UploadConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          []byte                 `protobuf:"bytes,1,opt,name=Data,proto3" json:"Data,omitempty"`
-	RestartCore   bool                   `protobuf:"varint,2,opt,name=RestartCore,proto3" json:"RestartCore,omitempty"`
+	Data          string                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	RestartCore   bool                   `protobuf:"varint,2,opt,name=restart_core,json=restartCore,proto3" json:"restart_core,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -485,11 +485,11 @@ func (*UploadConfigRequest) Descriptor() ([]byte, []int) {
 	return file_commands_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *UploadConfigRequest) GetData() []byte {
+func (x *UploadConfigRequest) GetData() string {
 	if x != nil {
 		return x.Data
 	}
-	return nil
+	return ""
 }
 
 func (x *UploadConfigRequest) GetRestartCore() bool {
@@ -543,25 +543,25 @@ const file_commands_proto_rawDesc = "" +
 	"\x18ConnectionJournalRequest\x12\x12\n" +
 	"\x04last\x18\x01 \x01(\x04R\x04last\"\xbb\x01\n" +
 	"\x0eConnectionMeta\x12\x16\n" +
-	"\x06Client\x18\x01 \x01(\tR\x06Client\x12\x16\n" +
-	"\x06Server\x18\x02 \x01(\tR\x06Server\x12/\n" +
-	"\x05Proto\x18\x03 \x01(\x0e2\x19.xraymon.commands.NetTypeR\x05Proto\x12\x18\n" +
-	"\aInbound\x18\x04 \x01(\tR\aInbound\x12\x1a\n" +
-	"\bOutbound\x18\x05 \x01(\tR\bOutbound\x12\x12\n" +
-	"\x04User\x18\x06 \x01(\tR\x04User\"\x13\n" +
-	"\x11CoreStatusRequest\"\x85\x01\n" +
+	"\x06client\x18\x01 \x01(\tR\x06client\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\x12/\n" +
+	"\x05proto\x18\x03 \x01(\x0e2\x19.xraymon.commands.NetTypeR\x05proto\x12\x18\n" +
+	"\ainbound\x18\x04 \x01(\tR\ainbound\x12\x1a\n" +
+	"\boutbound\x18\x05 \x01(\tR\boutbound\x12\x12\n" +
+	"\x04user\x18\x06 \x01(\tR\x04user\"\x13\n" +
+	"\x11CoreStatusRequest\"\x87\x01\n" +
 	"\x12CoreStatusResponse\x12\x18\n" +
-	"\aWorking\x18\x01 \x01(\bR\aWorking\x12\x18\n" +
-	"\aLastLog\x18\x02 \x01(\tR\aLastLog\x12;\n" +
-	"\vWorkingTime\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\vWorkingTime\"\x14\n" +
+	"\aworking\x18\x01 \x01(\bR\aworking\x12\x19\n" +
+	"\blast_log\x18\x02 \x01(\tR\alastLog\x12<\n" +
+	"\fworking_time\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\vworkingTime\"\x14\n" +
 	"\x12CoreRestartRequest\"\x15\n" +
 	"\x13CoreRestartResponse\"\x12\n" +
 	"\x10GetConfigRequest\"'\n" +
 	"\x11GetConfigResponse\x12\x12\n" +
-	"\x04Data\x18\x01 \x01(\fR\x04Data\"K\n" +
+	"\x04data\x18\x01 \x01(\tR\x04data\"L\n" +
 	"\x13UploadConfigRequest\x12\x12\n" +
-	"\x04Data\x18\x01 \x01(\fR\x04Data\x12 \n" +
-	"\vRestartCore\x18\x02 \x01(\bR\vRestartCore\"\x16\n" +
+	"\x04data\x18\x01 \x01(\tR\x04data\x12!\n" +
+	"\frestart_core\x18\x02 \x01(\bR\vrestartCore\"\x16\n" +
 	"\x14UploadConfigResponse*%\n" +
 	"\aNetType\x12\b\n" +
 	"\x04HTTP\x10\x00\x12\a\n" +
@@ -604,8 +604,8 @@ var file_commands_proto_goTypes = []any{
 	(*durationpb.Duration)(nil),      // 11: google.protobuf.Duration
 }
 var file_commands_proto_depIdxs = []int32{
-	0,  // 0: xraymon.commands.ConnectionMeta.Proto:type_name -> xraymon.commands.NetType
-	11, // 1: xraymon.commands.CoreStatusResponse.WorkingTime:type_name -> google.protobuf.Duration
+	0,  // 0: xraymon.commands.ConnectionMeta.proto:type_name -> xraymon.commands.NetType
+	11, // 1: xraymon.commands.CoreStatusResponse.working_time:type_name -> google.protobuf.Duration
 	1,  // 2: xraymon.commands.CoreManagmentService.ConnectionJournal:input_type -> xraymon.commands.ConnectionJournalRequest
 	3,  // 3: xraymon.commands.CoreManagmentService.CoreStatus:input_type -> xraymon.commands.CoreStatusRequest
 	5,  // 4: xraymon.commands.CoreManagmentService.CoreRestart:input_type -> xraymon.commands.CoreRestartRequest

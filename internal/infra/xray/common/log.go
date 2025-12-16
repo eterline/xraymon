@@ -6,7 +6,9 @@ package xraycommon
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
+	"io"
 	"log/slog"
 	"os"
 	"regexp"
@@ -220,7 +222,7 @@ func (l *accessLogger) readAllConnections() ([]domain.ConnectionMetadata, error)
 	return list, nil
 }
 
-func (al *accessLogger) LastConnections(n int) ([]domain.ConnectionMetadata, error) {
+func (al *accessLogger) LastConnections(ctx context.Context, n int) ([]domain.ConnectionMetadata, error) {
 	if n <= 0 {
 		return al.readAllConnections()
 	}
@@ -244,33 +246,42 @@ func (al *accessLogger) LastConnections(n int) ([]domain.ConnectionMetadata, err
 		return nil, nil
 	}
 
-	var lines [][]byte
-	buf := make([]byte, 4096)
+	const bufSize = 64 * 1024
+	buf := make([]byte, bufSize)
 
-	var chunk []byte
-	var leftover []byte
-	pos := size
+	var (
+		lines    = make([][]byte, 0, n)
+		leftover []byte
+		pos      = size
+	)
 
 	for pos > 0 && len(lines) < n {
-		readSize := int64(len(buf))
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		readSize := int64(bufSize)
 		if pos < readSize {
 			readSize = pos
 		}
 		pos -= readSize
 
-		if _, err := f.ReadAt(buf[:readSize], pos); err != nil {
+		_, err := f.ReadAt(buf[:readSize], pos)
+		if err != nil && err != io.EOF {
 			return nil, err
 		}
 
-		chunk = buf[:readSize]
+		chunk := buf[:readSize]
 
-		for i := len(chunk) - 1; i >= 0; i-- {
+		for i := len(chunk) - 1; i >= 0 && len(lines) < n; i-- {
 			if chunk[i] == '\n' {
-				line := append([]byte(nil), chunk[i+1:]...)
+				line := append([]byte{}, chunk[i+1:]...)
 				line = append(line, leftover...)
-				if len(line) > 0 {
+
+				if len(line) > 0 && json.Valid(line) {
 					lines = append(lines, bytes.TrimSpace(line))
 				}
+
 				leftover = leftover[:0]
 				chunk = chunk[:i]
 			}
@@ -279,34 +290,37 @@ func (al *accessLogger) LastConnections(n int) ([]domain.ConnectionMetadata, err
 		leftover = append(chunk, leftover...)
 	}
 
-	if len(leftover) > 0 && len(lines) < n {
+	if len(leftover) > 0 && len(lines) < n && json.Valid(leftover) {
 		lines = append(lines, bytes.TrimSpace(leftover))
 	}
 
-	if len(lines) > n {
-		lines = lines[:n]
-	}
-
 	for i, j := 0, len(lines)-1; i < j; i, j = i+1, j-1 {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		lines[i], lines[j] = lines[j], lines[i]
 	}
 
 	result := make([]domain.ConnectionMetadata, 0, len(lines))
 	for _, raw := range lines {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		var obj map[string]string
-		if json.Unmarshal(raw, &obj) != nil {
+		if err := json.Unmarshal(raw, &obj); err != nil {
 			continue
 		}
 
-		m := domain.ConnectionMetadata{
+		result = append(result, domain.ConnectionMetadata{
 			Client:   obj["client"],
 			Server:   obj["target"],
 			Proto:    obj["proto"],
 			Inbound:  obj["inbound"],
 			Outbound: obj["outbound"],
 			User:     obj["user"],
-		}
-		result = append(result, m)
+		})
 	}
 
 	return result, nil

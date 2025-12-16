@@ -50,12 +50,12 @@ enum NetType {
 }
 
 message ConnectionMeta {
-    string  Client   = 1;
-    string  Server   = 2;
-    NetType Proto    = 3;
-    string  Inbound  = 4;
-    string  Outbound = 5;
-    string  User     = 6;
+    string  client   = 1;
+    string  server   = 2;
+    NetType proto    = 3;
+    string  inbound  = 4;
+    string  outbound = 5;
+    string  user     = 6;
 }
 
 // =======
@@ -63,9 +63,9 @@ message ConnectionMeta {
 message CoreStatusRequest {}
 
 message CoreStatusResponse {
-    bool                        Working     = 1;
-    string                      LastLog     = 2;
-    google.protobuf.Duration    WorkingTime = 3;
+    bool                        working         = 1;
+    string                      last_log         = 2;
+    google.protobuf.Duration    working_time    = 3;
 }
 
 // =======
@@ -79,12 +79,12 @@ message CoreRestartResponse {}
 message GetConfigRequest {}
 
 message GetConfigResponse {
-    bytes Data = 1;
+    string data = 1;
 }
 
 message UploadConfigRequest {
-    bytes   Data        = 1;
-    bool    RestartCore = 2;
+    string   data        = 1;
+    bool     restart_core = 2;
 }
 
 message UploadConfigResponse {}

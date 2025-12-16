@@ -9,6 +9,8 @@ require (
 )
 
 require (
+	github.com/alexflint/go-arg v1.6.0 // indirect
+	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/juju/ratelimit v1.0.2 // indirect

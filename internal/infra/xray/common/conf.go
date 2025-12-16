@@ -86,7 +86,7 @@ type apiObject struct {
 func initApiObject() *apiObject {
 	return &apiObject{
 		Tag:    "api",
-		Listen: "127.0.0.1:3000",
+		Listen: "127.0.0.1:8000",
 		Services: []string{
 			"HandlerService",
 			"LoggerService",

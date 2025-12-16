@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -144,6 +145,8 @@ func (m *CoreManager) performRestart(t restartType) {
 	go func() {
 		log := log.MustLoggerFromContext(ctx)
 
+		log.Info("run core", "log_level", m.level)
+
 		err := m.dsp.Run(ctx, cfg, m.level)
 		if err != nil {
 			log.Error("core crashed", "error", err)
@@ -161,7 +164,7 @@ func (m *CoreManager) performRestart(t restartType) {
 		}
 
 		m.mu.Lock()
-		m.working = false
+		m.working = true
 		m.crashRestarts = 0
 		m.mu.Unlock()
 	}()
@@ -175,6 +178,8 @@ func (m *CoreManager) Status() domain.CoreStatus {
 	if m.working {
 		wt = time.Since(m.lastStartTime)
 	}
+
+	fmt.Println(wt)
 
 	return domain.CoreStatus{
 		Working:     m.working,

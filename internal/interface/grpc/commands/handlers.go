@@ -24,7 +24,7 @@ type Limiter interface {
 // LastConnProvider - provider of the last connections.
 type LastConnProvider interface {
 	// LastConnections returns the last N connection metadata records.
-	LastConnections(int) ([]domain.ConnectionMetadata, error)
+	LastConnections(context.Context, int) ([]domain.ConnectionMetadata, error)
 }
 
 // coreManageHandlers - gRPC handler for core management operations.
@@ -47,12 +47,14 @@ func NewCoreManageHandlers(
 	s domain.ConfigSaver,
 	l domain.ConfigLoader,
 	r domain.CoreState,
+	lc LastConnProvider,
 	log *slog.Logger,
 ) *coreManageHandlers {
 	return &coreManageHandlers{
 		confSave:  s,
 		confLoad:  l,
 		coreState: r,
+		lastConns: lc,
 
 		confSaveLim:    usecase.NewIntervalLimiter(5 * time.Second),
 		coreRestartLim: usecase.NewIntervalLimiter(5 * time.Second),
@@ -64,7 +66,7 @@ func NewCoreManageHandlers(
 // ConnectionJournal - streams the last connection records to the client.
 func (cmh *coreManageHandlers) ConnectionJournal(r *ConnectionJournalRequest, stream grpc.ServerStreamingServer[ConnectionMeta]) error {
 
-	metaList, err := cmh.lastConns.LastConnections(int(r.Last))
+	metaList, err := cmh.lastConns.LastConnections(stream.Context(), int(r.Last))
 	if err != nil {
 		cmh.log.Error("failed to load connection journal", "error", err)
 		return err
@@ -132,7 +134,7 @@ func (cmh *coreManageHandlers) GetConfig(ctx context.Context, r *GetConfigReques
 	}
 
 	cmh.log.Debug("config requested")
-	return &GetConfigResponse{Data: data}, nil
+	return &GetConfigResponse{Data: string(data)}, nil
 }
 
 // UploadConfig - uploads a new core configuration with rate-limiting.
@@ -144,7 +146,7 @@ func (cmh *coreManageHandlers) UploadConfig(ctx context.Context, r *UploadConfig
 	}
 
 	var cfg domain.CoreConfiguration
-	if err := json.Unmarshal(r.Data, &cfg); err != nil {
+	if err := json.Unmarshal([]byte(r.Data), &cfg); err != nil {
 		cmh.log.Warn("invalid config payload", "error", err)
 		return nil, err
 	}

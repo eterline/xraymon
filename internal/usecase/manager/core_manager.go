@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -178,8 +177,6 @@ func (m *CoreManager) Status() domain.CoreStatus {
 	if m.working {
 		wt = time.Since(m.lastStartTime)
 	}
-
-	fmt.Println(wt)
 
 	return domain.CoreStatus{
 		Working:     m.working,

@@ -145,6 +145,11 @@ func (cmh *coreManageHandlers) UploadConfig(ctx context.Context, r *UploadConfig
 		return nil, errors.New("too many upload requests")
 	}
 
+	if !json.Valid([]byte(r.Data)) {
+		cmh.log.Warn("invalid JSON config format")
+		return nil, errors.New("invalid JSON config format")
+	}
+
 	var cfg domain.CoreConfiguration
 	if err := json.Unmarshal([]byte(r.Data), &cfg); err != nil {
 		cmh.log.Warn("invalid config payload", "error", err)

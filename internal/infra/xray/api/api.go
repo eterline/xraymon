@@ -13,7 +13,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/xtls/xray-core/app/proxyman/command"
 	handlerService "github.com/xtls/xray-core/app/proxyman/command"
 	statsService "github.com/xtls/xray-core/app/stats/command"
 	"google.golang.org/grpc"
@@ -65,7 +64,7 @@ func New(addr string) (*XrayAPI, error) {
 	x.grpcClient = conn
 	x.isConnected.Store(true)
 
-	hsClient := command.NewHandlerServiceClient(conn)
+	hsClient := handlerService.NewHandlerServiceClient(conn)
 	ssClient := statsService.NewStatsServiceClient(conn)
 
 	x.HandlerServiceClient = &hsClient

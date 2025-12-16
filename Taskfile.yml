@@ -58,6 +58,17 @@ tasks:
       - rm -f *.exe *.out *.test 2>/dev/null || true
       - echo "=== Cleanup Completed ==="
 
+  checkup:
+    desc: "Go lint tests and severity tests"
+    silent: true
+    cmds:
+      - echo "=== Linting code ==="
+      - golangci-lint run
+      - echo "=== Code lint tested ==="
+      - echo "=== Vulnerability test start ==="
+      - govulncheck ./...
+      - echo "=== Vulnerability test finished ==="
+
   # Project tests
   project-tests:
     desc: "Run all project tests"

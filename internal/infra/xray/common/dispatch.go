@@ -63,7 +63,7 @@ func (xd *XrayDispatcher) Run(ctx context.Context, conf domain.CoreConfiguration
 	}
 
 	if err := json.NewEncoder(stdin).Encode(conf); err != nil {
-		stdin.Close()
+		_ = stdin.Close()
 		return err
 	}
 	stdin.Close()

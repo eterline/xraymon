@@ -39,26 +39,26 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 
 	// ========================================================
 
-	log.Info("init base xray settings file", "file", conf.Core.ConfigFile)
-	cfgExporter, err := xraycommon.NewConfigFileProvider(conf.Core.ConfigFile)
+	log.Info("init base xray settings file", "file", conf.ConfigFile)
+	cfgExporter, err := xraycommon.NewConfigFileProvider(conf.ConfigFile)
 	if err != nil {
-		log.Error("failed init config provider", "file", conf.Core.ConfigFile, "error", err)
+		log.Error("failed init config provider", "file", conf.ConfigFile, "error", err)
 		root.MustStopApp(1)
 	}
 	defer cfgExporter.Close()
 
-	log.Info("init access logger", "file", conf.Core.CoreAccess)
-	accessLog, err := xraycommon.NewAccessLogger(conf.Core.CoreAccess)
+	log.Info("init access logger", "file", conf.CoreAccess)
+	accessLog, err := xraycommon.NewAccessLogger(conf.CoreAccess)
 	if err != nil {
-		log.Error("failed init access logger", "file", conf.Core.CoreAccess, "error", err)
+		log.Error("failed init access logger", "file", conf.CoreAccess, "error", err)
 		root.MustStopApp(1)
 	}
 	defer accessLog.Close()
 
-	log.Info("init core logger", "file", conf.Core.CoreLog)
-	coreLog, err := xraycommon.NewCoreLogger(conf.Core.CoreLog)
+	log.Info("init core logger", "file", conf.CoreLog)
+	coreLog, err := xraycommon.NewCoreLogger(conf.CoreLog)
 	if err != nil {
-		log.Error("failed init core logger", "file", conf.Core.CoreLog, "error", err)
+		log.Error("failed init core logger", "file", conf.CoreLog, "error", err)
 		root.MustStopApp(1)
 	}
 	defer coreLog.Close()
@@ -79,14 +79,14 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 	// ========================================================
 
 	var grpcSrv *grpc.Server
-	if conf.Server.CrtFileSSL != "" && conf.Server.KeyFileSSL != "" {
+	if conf.CrtFileSSL != "" && conf.KeyFileSSL != "" {
 		log.Info(
 			"init grpc with tls",
-			"cert", conf.Server.CrtFileSSL,
-			"key", conf.Server.KeyFileSSL,
+			"cert", conf.CrtFileSSL,
+			"key", conf.KeyFileSSL,
 		)
 
-		grpcSrv, err = server.NewTLSGrpcServer(conf.Server.CrtFileSSL, conf.Server.KeyFileSSL)
+		grpcSrv, err = server.NewTLSGrpcServer(conf.CrtFileSSL, conf.KeyFileSSL)
 		if err != nil {
 			log.Error("failed init tls grpc server", "error", err)
 			root.MustStopApp(1)
@@ -102,14 +102,14 @@ func Execute(root *toolkit.AppStarter, flags InitFlags, conf config.Configuratio
 
 	// ==========
 
-	srv, err := server.NewGrpcServerWrapper(grpcSrv, conf.Server.Listen)
+	srv, err := server.NewGrpcServerWrapper(grpcSrv, conf.Listen)
 	if err != nil {
 		log.Error("failed init grpc server", "error", err)
 		root.MustStopApp(1)
 	}
 
 	root.WrapWorker(func() {
-		log.Info("starting grpc server", "listen", conf.Server.Listen)
+		log.Info("starting grpc server", "listen", conf.Listen)
 		err := srv.Run(ctx)
 		if err != nil {
 			slog.Error("start grpc server failed", "error", err)

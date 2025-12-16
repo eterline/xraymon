@@ -62,7 +62,9 @@ func (bl *basicLogger) newLog(rotate bool) error {
 	defer bl.fileMu.Unlock()
 
 	if bl.file != nil {
-		bl.file.Close()
+		if err := bl.file.Close(); err != nil {
+			return err
+		}
 	}
 
 	flag := os.O_CREATE | os.O_WRONLY

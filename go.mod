@@ -3,13 +3,14 @@ module github.com/eterline/xraymon
 go 1.25.3
 
 require (
+	github.com/alexflint/go-arg v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/xtls/xray-core v1.251202.0
 	google.golang.org/grpc v1.77.0
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
-	github.com/alexflint/go-arg v1.6.0 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
@@ -30,6 +31,5 @@ require (
 	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
 	lukechampine.com/blake3 v1.4.1 // indirect
 )

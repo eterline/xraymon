@@ -6,7 +6,7 @@ import (
 )
 
 func PrintJSON(v any, pretty bool) {
-	data := []byte{}
+	var data []byte
 	if !pretty {
 		data, _ = json.Marshal(v)
 	} else {

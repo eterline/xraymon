@@ -18,5 +18,5 @@ func (inf InitFlags) GetVersion() string {
 }
 
 func (inf InitFlags) GetRepository() string {
-	return inf.Version
+	return inf.Repository
 }
